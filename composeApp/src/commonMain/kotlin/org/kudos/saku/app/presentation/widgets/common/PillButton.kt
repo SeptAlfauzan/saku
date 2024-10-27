@@ -1,4 +1,4 @@
-package org.kudos.saku.app.presentation.widgets
+package org.kudos.saku.app.presentation.widgets.common
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
