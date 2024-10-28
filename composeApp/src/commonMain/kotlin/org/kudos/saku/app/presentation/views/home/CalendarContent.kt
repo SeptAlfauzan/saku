@@ -4,15 +4,15 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -43,7 +43,9 @@ import com.kizitonwose.calendar.core.plusMonths
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.presentation.widgets.calendar.SimpleCalendarTitle
+import org.kudos.saku.app.presentation.widgets.common.GroupedCashFlowCard
 import org.kudos.saku.utils.advancedTitleCase
 
 
@@ -113,9 +115,73 @@ fun CalendarContent(adjacentMonths: Int = 500) {
         }
         Text(
             "Rincian",
-            style = TextStyle(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(top = 32.dp)
+            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp),
+            modifier = Modifier.padding(top = 32.dp, bottom = 16.dp)
         )
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 64.dp)) {
+            item {
+                GroupedCashFlowCard(
+                    entities = listOf(
+                        CashFlow(
+                            id = "asdads",
+                            text = "Beli telur 1kg",
+                            isCashIn = false,
+                            amount = 13000L
+                        ),
+                        CashFlow(
+                            id = "asdads",
+                            text = "Beli telur 1kg",
+                            isCashIn = false,
+                            amount = 13000L
+                        ),
+                        CashFlow(
+                            id = "asdads",
+                            text = "Beli telur 1kg",
+                            isCashIn = false,
+                            amount = 13000L
+                        ),
+                        CashFlow(
+                            id = "asdads",
+                            text = "Beli telur 1kg",
+                            isCashIn = false,
+                            amount = 13000L
+                        ),
+                    ),
+                    isCashIn = false,
+                )
+            }
+            item {
+                GroupedCashFlowCard(
+                    entities = listOf(
+                        CashFlow(
+                            id = "asdads",
+                            text = "Beli telur 1kg",
+                            isCashIn = true,
+                            amount = 13000L
+                        ),
+                        CashFlow(
+                            id = "asdads",
+                            text = "Beli telur 1kg",
+                            isCashIn = true,
+                            amount = 13000L
+                        ),
+                        CashFlow(
+                            id = "asdads",
+                            text = "Beli telur 1kg",
+                            isCashIn = true,
+                            amount = 13000L
+                        ),
+                        CashFlow(
+                            id = "asdads",
+                            text = "Beli telur 1kg",
+                            isCashIn = true,
+                            amount = 13000L
+                        ),
+                    ),
+                    isCashIn = true,
+                )
+            }
+        }
     }
 }
 

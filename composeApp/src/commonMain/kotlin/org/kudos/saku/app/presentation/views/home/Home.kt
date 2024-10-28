@@ -66,8 +66,8 @@ fun Home() {
                 }
                 HorizontalPager(state = pagerState) { page ->
                     when (page) {
-                        0 -> HomeContent()
-                        1 -> CalendarContent()
+                        0 -> CalendarContent()
+                        1 -> HomeContent()
                     }
                 }
             }
