@@ -64,7 +64,6 @@ fun Home() {
                         )
                     }
                 }
-                Text(showBottomSheet.toString())
                 HorizontalPager(state = pagerState) { page ->
                     when (page) {
                         0 -> HomeContent()

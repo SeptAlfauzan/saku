@@ -4,12 +4,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,10 +61,12 @@ fun CalendarContent(adjacentMonths: Int = 500) {
         firstDayOfWeek = daysOfWeek.first(),
     )
     val coroutineScope = rememberCoroutineScope()
+    val flingBehavior = ScrollableDefaults.flingBehavior()
 
     Column {
         Column(
             modifier = Modifier
+                .height(380.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
