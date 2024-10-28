@@ -61,19 +61,18 @@ fun CalendarContent(adjacentMonths: Int = 500) {
         firstDayOfWeek = daysOfWeek.first(),
     )
     val coroutineScope = rememberCoroutineScope()
-    val flingBehavior = ScrollableDefaults.flingBehavior()
+    val calendarContainerModifier = Modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(12.dp))
+        .background(Color.White)
+        .border(
+            BorderStroke(width = 1.dp, color = Color(0xFFA6A6A6)),
+            shape = RoundedCornerShape(12.dp)
+        )
 
     Column {
         Column(
-            modifier = Modifier
-                .height(380.dp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.White)
-                .border(
-                    BorderStroke(width = 1.dp, color = Color(0xFFA6A6A6)),
-                    shape = RoundedCornerShape(12.dp)
-                ),
+            modifier = calendarContainerModifier,
         ) {
             SimpleCalendarTitle(
                 modifier = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
@@ -112,7 +111,11 @@ fun CalendarContent(adjacentMonths: Int = 500) {
                 },
             )
         }
-        Text("Rincian", style = TextStyle(fontWeight = FontWeight.Bold), modifier = Modifier.padding(top = 32.dp))
+        Text(
+            "Rincian",
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(top = 32.dp)
+        )
     }
 }
 

@@ -1,8 +1,12 @@
 package org.kudos.saku.app.presentation.widgets.common
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateValueAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -44,8 +48,13 @@ fun AddCashFlowRecordBottomSheet(
         animationSpec = animationSpec,
         label = "bottomSheet"
     )
-    if (showBottomSheet) {
 
+
+    AnimatedVisibility(
+        visible = showBottomSheet,
+        enter = fadeIn(animationSpec = tween(200)),
+        exit = fadeOut(animationSpec = tween(200))
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -81,7 +90,6 @@ fun AddCashFlowRecordBottomSheet(
                     .pointerInput(Unit) {
                         // Stop tap propagation to scrim for the sheet content
                         detectTapGestures { }
-
                     },
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
                 color = MaterialTheme.colors.surface,
@@ -98,4 +106,5 @@ fun AddCashFlowRecordBottomSheet(
             }
         }
     }
+
 }
