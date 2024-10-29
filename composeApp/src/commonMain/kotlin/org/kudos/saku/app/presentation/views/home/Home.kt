@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.presentation.widgets.common.AddCashFlowRecordBottomSheet
 import org.kudos.saku.app.presentation.widgets.common.ButtonType
 import org.kudos.saku.app.presentation.widgets.common.PillButton
@@ -29,7 +30,9 @@ import org.kudos.saku.app.presentation.widgets.home.HomeTopBar
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Home() {
+fun Home(
+    cashFlowEntities: List<CashFlow>
+) {
     var showBottomSheet by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(pageCount = { 10 })
     val coroutineScope = rememberCoroutineScope()
@@ -66,8 +69,8 @@ fun Home() {
                 }
                 HorizontalPager(state = pagerState) { page ->
                     when (page) {
-                        0 -> CalendarContent()
-                        1 -> HomeContent()
+                        0 -> HomeContent(cashFlowEntities)
+                        1 -> CalendarContent()
                     }
                 }
             }

@@ -48,9 +48,9 @@ import org.kudos.saku.app.presentation.widgets.calendar.SimpleCalendarTitle
 import org.kudos.saku.app.presentation.widgets.common.GroupedCashFlowCard
 import org.kudos.saku.utils.advancedTitleCase
 
-
 @Composable
 fun CalendarContent(adjacentMonths: Int = 500) {
+
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(adjacentMonths) }
     val endMonth = remember { currentMonth.plusMonths(adjacentMonths) }
@@ -121,69 +121,73 @@ fun CalendarContent(adjacentMonths: Int = 500) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 64.dp)) {
             item {
                 GroupedCashFlowCard(
-                    entities = listOf(
-                        CashFlow(
-                            id = "asdads",
-                            text = "Beli telur 1kg",
-                            isCashIn = false,
-                            amount = 13000L
-                        ),
-                        CashFlow(
-                            id = "asdads",
-                            text = "Beli telur 1kg",
-                            isCashIn = false,
-                            amount = 13000L
-                        ),
-                        CashFlow(
-                            id = "asdads",
-                            text = "Beli telur 1kg",
-                            isCashIn = false,
-                            amount = 13000L
-                        ),
-                        CashFlow(
-                            id = "asdads",
-                            text = "Beli telur 1kg",
-                            isCashIn = false,
-                            amount = 13000L
-                        ),
-                    ),
+                    entities = cashOutEntities,
                     isCashIn = false,
                 )
             }
             item {
                 GroupedCashFlowCard(
-                    entities = listOf(
-                        CashFlow(
-                            id = "asdads",
-                            text = "Beli telur 1kg",
-                            isCashIn = true,
-                            amount = 13000L
-                        ),
-                        CashFlow(
-                            id = "asdads",
-                            text = "Beli telur 1kg",
-                            isCashIn = true,
-                            amount = 13000L
-                        ),
-                        CashFlow(
-                            id = "asdads",
-                            text = "Beli telur 1kg",
-                            isCashIn = true,
-                            amount = 13000L
-                        ),
-                        CashFlow(
-                            id = "asdads",
-                            text = "Beli telur 1kg",
-                            isCashIn = true,
-                            amount = 13000L
-                        ),
-                    ),
+                    entities = cashInEntities,
                     isCashIn = true,
                 )
             }
         }
     }
 }
+
+val cashOutEntities = listOf(
+    CashFlow(
+        id = "asdads",
+        text = "Beli telur 1kg",
+        isCashIn = false,
+        amount = 13000L
+    ),
+    CashFlow(
+        id = "asdads",
+        text = "Beli telur 1kg",
+        isCashIn = false,
+        amount = 13000L
+    ),
+    CashFlow(
+        id = "asdads",
+        text = "Beli telur 1kg",
+        isCashIn = false,
+        amount = 13000L
+    ),
+    CashFlow(
+        id = "asdads",
+        text = "Beli telur 1kg",
+        isCashIn = false,
+        amount = 13000L
+    ),
+)
+
+val cashInEntities = listOf(
+    CashFlow(
+        id = "asdads",
+        text = "Beli telur 1kg",
+        isCashIn = true,
+        amount = 13000L
+    ),
+    CashFlow(
+        id = "asdads",
+        text = "Beli telur 1kg",
+        isCashIn = true,
+        amount = 13000L
+    ),
+    CashFlow(
+        id = "asdads",
+        text = "Beli telur 1kg",
+        isCashIn = true,
+        amount = 13000L
+    ),
+    CashFlow(
+        id = "asdads",
+        text = "Beli telur 1kg",
+        isCashIn = true,
+        amount = 13000L
+    ),
+)
 
 @Composable
 private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {

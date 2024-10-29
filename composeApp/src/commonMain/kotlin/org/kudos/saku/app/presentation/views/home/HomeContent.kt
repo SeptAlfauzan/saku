@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.presentation.widgets.common.CashFlowCard
 import org.kudos.saku.app.presentation.widgets.setting.SeeChartCard
 import org.kudos.saku.app.presentation.widgets.setting.TodayCard
@@ -23,7 +25,9 @@ import org.kudos.saku.app.presentation.widgets.setting.TodayCard
 
 @Preview
 @Composable
-fun HomeContent(modifier: Modifier = Modifier) {
+fun HomeContent(
+    cashFlowEntities: List<CashFlow>,
+    modifier: Modifier = Modifier) {
     val textStyle = TextStyle(
         color = Color(0xFF29515B)
     )
@@ -44,8 +48,8 @@ fun HomeContent(modifier: Modifier = Modifier) {
                 )
             }
         }
-        items(10) {
-            CashFlowCard(isCashIn = true, money = 25000)
+        items(cashFlowEntities) {
+            CashFlowCard(isCashIn = it.isCashIn, money = it.amount)
         }
     }
 }
