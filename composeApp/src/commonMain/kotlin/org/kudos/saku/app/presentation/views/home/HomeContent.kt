@@ -61,16 +61,24 @@ fun HomeContent(
                 is UIState.Error -> item {
                     Text(cashFlowEntitiesUiState.error)
                 }
-
                 UIState.Loading -> item {
                     Box(Modifier.fillMaxWidth()) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
-
                 is UIState.Success -> {
-                    items(cashFlowEntitiesUiState.data) {
-                        CashFlowCard(isCashIn = it.isCashIn, money = it.amount)
+                    if (cashFlowEntitiesUiState.data.isEmpty()) {
+                        item {
+                            Text("No data added today")
+                        }
+                    } else {
+                        items(cashFlowEntitiesUiState.data) {
+                            CashFlowCard(
+                                isCashIn = it.isCashIn,
+                                money = it.amount,
+                                created = it.created
+                            )
+                        }
                     }
                 }
             }

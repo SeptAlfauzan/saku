@@ -34,6 +34,8 @@ import org.kudos.saku.utils.UIState
 @Composable
 fun Home(
     loadCashFlowEntities: () -> Unit,
+    insertCashFlowToDB: (CashFlow, () -> Unit) -> Unit,
+    isSavingCashFlowSateFlow: StateFlow<Boolean>,
     cashFlowEntitiesStateFlow: StateFlow<UIState<List<CashFlow>>>
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -84,6 +86,8 @@ fun Home(
         }
         AddCashFlowRecordBottomSheet(
             showBottomSheet = showBottomSheet,
+            insertCashFlowToDB = insertCashFlowToDB,
+            isSavingCashFlow = isSavingCashFlowSateFlow,
             onDismiss = { showBottomSheet = false })
     }
 }

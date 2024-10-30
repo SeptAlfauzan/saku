@@ -10,5 +10,6 @@ data class CashFlowEntity @OptIn(ExperimentalUuidApi::class) constructor(
     @PrimaryKey() val id: String = Uuid.toString(),
     val text: String,
     val isCashIn: Boolean,
-    val amount: Long
+    val amount: Long,
+    val created: String,
 )

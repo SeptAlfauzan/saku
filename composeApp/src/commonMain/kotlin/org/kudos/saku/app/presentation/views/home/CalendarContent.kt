@@ -140,25 +140,29 @@ val cashOutEntities = listOf(
         id = "asdads",
         text = "Beli telur 1kg",
         isCashIn = false,
-        amount = 13000L
+        amount = 13000L,
+        created = "30-10-2024"
     ),
     CashFlow(
         id = "asdads",
         text = "Beli telur 1kg",
         isCashIn = false,
-        amount = 13000L
+        amount = 13000L,
+        created = "30-10-2024"
     ),
     CashFlow(
         id = "asdads",
         text = "Beli telur 1kg",
         isCashIn = false,
-        amount = 13000L
+        amount = 13000L,
+        created = "30-10-2024"
     ),
     CashFlow(
         id = "asdads",
         text = "Beli telur 1kg",
         isCashIn = false,
-        amount = 13000L
+        amount = 13000L,
+        created = "30-10-2024"
     ),
 )
 
@@ -167,25 +171,29 @@ val cashInEntities = listOf(
         id = "asdads",
         text = "Beli telur 1kg",
         isCashIn = true,
-        amount = 13000L
+        amount = 13000L,
+        created = "30-10-2024"
     ),
     CashFlow(
         id = "asdads",
         text = "Beli telur 1kg",
         isCashIn = true,
-        amount = 13000L
+        amount = 13000L,
+        created = "30-10-2024"
     ),
     CashFlow(
         id = "asdads",
         text = "Beli telur 1kg",
         isCashIn = true,
-        amount = 13000L
+        amount = 13000L,
+        created = "30-10-2024"
     ),
     CashFlow(
         id = "asdads",
         text = "Beli telur 1kg",
         isCashIn = true,
-        amount = 13000L
+        amount = 13000L,
+        created = "30-10-2024"
     ),
 )
 

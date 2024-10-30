@@ -19,6 +19,9 @@ interface CashFlowDao {
     @Query("SELECT * FROM CashFlowEntity")
     fun getAllAsFlow(): Flow<List<CashFlowEntity>>
 
+    @Query("SELECT * FROM CashFlowEntity where created = :date")
+    fun getByDateAsFlow(date: String): Flow<List<CashFlowEntity>>
+
     @Delete
     fun delete(item: CashFlowEntity)
 

@@ -9,4 +9,5 @@ interface CashFlowRepository {
     suspend fun getCashFlow(): Flow<List<CashFlowEntity>>
     suspend fun deleteCashFlow(item: CashFlowEntity)
     suspend fun insertCashFlow(item: CashFlowEntity)
+    suspend fun getByDate(date:String): Flow<List<CashFlowEntity>>
 }

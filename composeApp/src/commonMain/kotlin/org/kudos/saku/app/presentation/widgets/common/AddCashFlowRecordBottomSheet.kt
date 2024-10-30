@@ -25,6 +25,8 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Switch
+import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,21 +44,28 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.domain.entities.Input
 import org.kudos.saku.app.presentation.widgets.calendar.DatePicker
 import kotlin.math.roundToInt
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun AddCashFlowRecordBottomSheet(
     showBottomSheet: Boolean,
     onDismiss: () -> Unit,
+    insertCashFlowToDB: (CashFlow, () -> Unit) -> Unit,
+    isSavingCashFlow: StateFlow<Boolean>,
     animationSpec: AnimationSpec<Float> = tween(300),
-
-    ) {
+) {
     var sheetHeight by remember { mutableStateOf(0f) }
     var dragOffset by remember { mutableStateOf(0f) }
     val animatedOffset by animateFloatAsState(
@@ -68,6 +77,14 @@ fun AddCashFlowRecordBottomSheet(
     var selectedDate by remember { mutableStateOf(currentDate) }
     var descInput by remember { mutableStateOf(Input(value = "")) }
     var amountInput by remember { mutableStateOf(Input<Long>(value = 0)) }
+    var isCashIn by remember { mutableStateOf(false) }
+
+    fun resetFormValues() {
+        descInput = descInput.copy(value = "")
+        amountInput = amountInput.copy(value = 0)
+        selectedDate = currentDate
+        isCashIn = false
+    }
 
     AnimatedVisibility(
         visible = showBottomSheet,
@@ -114,9 +131,9 @@ fun AddCashFlowRecordBottomSheet(
                 elevation = if (showBottomSheet) 8.dp else 0.dp,
             ) {
                 AddCashFlowForm(
-                    onSelectDate = {
-                        selectedDate = it
-                    },
+                    onSelectDate = { selectedDate = it },
+                    onCheckCashIn = { isCashIn = it },
+                    isCashIn = isCashIn,
                     descInput = descInput,
                     amountInput = amountInput,
                     isFormValid = descInput.value != "" && amountInput.value != 0L,
@@ -129,11 +146,21 @@ fun AddCashFlowRecordBottomSheet(
                         }
                     },
                     onCancel = {
-                        descInput = descInput.copy(value = "")
-                        amountInput = amountInput.copy(value = 0)
+                        resetFormValues()
+                        onDismiss()
                     },
                     onOk = {
-
+                        val item = CashFlow(
+                            id = Uuid.random().toString(),
+                            text = descInput.value,
+                            amount = amountInput.value,
+                            created = selectedDate.toString(),
+                            isCashIn = isCashIn
+                        )
+                        insertCashFlowToDB(item) {
+                            resetFormValues()
+                            onDismiss()
+                        }
                     }
                 )
             }
@@ -143,6 +170,8 @@ fun AddCashFlowRecordBottomSheet(
 
 @Composable
 private fun AddCashFlowForm(
+    isCashIn: Boolean,
+    onCheckCashIn: (Boolean) -> Unit,
     onSelectDate: (LocalDate) -> Unit,
     descInput: Input<String>,
     onDescInputChange: (String) -> Unit,
@@ -169,11 +198,22 @@ private fun AddCashFlowForm(
                 .align(Alignment.CenterHorizontally)
                 .padding(bottom = 36.dp)
         )
+
         Column {
-            Text("Select Date", style = textGray)
+            Text("Select date", style = textGray)
             DatePicker(
                 onDateSelected = onSelectDate,
                 modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Is cash in?", style = textGray)
+            Switch(
+                checked = isCashIn,
+                onCheckedChange = onCheckCashIn,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color(0xFFBFFF67)
+                )
             )
         }
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -188,7 +228,7 @@ private fun AddCashFlowForm(
             )
         }
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text("Ammount", style = textGray)
+            Text("Amount", style = textGray)
             StyledTextField(
                 value = amountInput.value.toString(),
                 onValueChange = onAmountInputChange,

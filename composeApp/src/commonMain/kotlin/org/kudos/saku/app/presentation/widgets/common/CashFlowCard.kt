@@ -30,6 +30,7 @@ import org.kudos.saku.utils.toIdr
 fun CashFlowCard(
     isCashIn: Boolean,
     money: Long,
+    created: String,
     modifier: Modifier = Modifier
 ) {
     val textStyle = TextStyle(if (isCashIn) Color(0xFF419F41) else Color(0xFF9F4141))
@@ -39,7 +40,7 @@ fun CashFlowCard(
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(Modifier.padding(12.dp)) {
-            Text("Total pemasukan", style = textStyle)
+            Text(if (isCashIn) "Cash in" else "Cash out", style = textStyle)
             Row {
                 Icon(
                     if (isCashIn) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
@@ -47,13 +48,15 @@ fun CashFlowCard(
                     tint = Color(if (isCashIn) 0xFFBFFF67 else 0xFFFF4D4D),
                     modifier = Modifier.size(34.dp),
                 )
-                Text(
-                    money.toIdr(),
-                    style = TextStyle(fontSize = 34.sp, fontWeight = FontWeight.Bold)
-                )
+                Column {
+                    Text(
+                        money.toIdr(),
+                        style = TextStyle(fontSize = 34.sp, fontWeight = FontWeight.Bold)
+                    )
+                }
             }
             DateCreated(
-                text = "dibuat 12/12/2024",
+                text = "dibuat $created",
                 modifier = Modifier.align(Alignment.End)
             )
         }

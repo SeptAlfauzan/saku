@@ -21,6 +21,8 @@ fun App(cashFlowViewModel: CashFlowViewModel) {
             Home(
                 loadCashFlowEntities = { cashFlowViewModel.getCashFlowEntities() },
                 cashFlowEntitiesStateFlow = cashFlowViewModel.cashFlowEntities,
+                insertCashFlowToDB = { it, cb -> cashFlowViewModel.insertCashFlow(it, cb)},
+                isSavingCashFlowSateFlow = cashFlowViewModel.isSavingCashFlowEntity,
             )
         }
     }

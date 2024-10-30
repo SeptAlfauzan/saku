@@ -4,5 +4,6 @@ data class CashFlow(
     val id: String,
     val text: String,
     val isCashIn: Boolean,
-    val amount: Long
+    val amount: Long,
+    val created: String,
 )

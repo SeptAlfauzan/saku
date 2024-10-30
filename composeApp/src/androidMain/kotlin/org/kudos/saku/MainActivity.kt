@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.kudos.saku.app.data.repositories.CashFlowRepositoryImpl
 import org.kudos.saku.app.data.source.local.room.getDao
@@ -22,7 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         actionBar?.hide()
-
+        Napier.base(DebugAntilog())
         val dao = getDao(applicationContext).cashFlowDao()
         val cashFlowRepository: CashFlowRepository = CashFlowRepositoryImpl(dao)
         setContent {
@@ -39,8 +41,8 @@ class MainActivity : ComponentActivity() {
 @Preview(device = Devices.PIXEL_4)
 @Composable
 fun HomePreview() {
-    Home(
-        {},
-        MutableStateFlow(UIState.Loading),
-    )
+//    Home(
+//        {},
+//        MutableStateFlow(UIState.Loading),
+//    )
 }

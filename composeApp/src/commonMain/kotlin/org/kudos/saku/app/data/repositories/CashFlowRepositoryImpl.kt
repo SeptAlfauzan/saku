@@ -5,14 +5,18 @@ import org.kudos.saku.app.data.source.local.room.dao.CashFlowDao
 import org.kudos.saku.app.data.source.local.room.entities.CashFlowEntity
 import org.kudos.saku.app.domain.repositories.CashFlowRepository
 
-class CashFlowRepositoryImpl constructor(override val cashFlowDao: CashFlowDao): CashFlowRepository {
+class CashFlowRepositoryImpl constructor(override val cashFlowDao: CashFlowDao) :
+    CashFlowRepository {
     override suspend fun getCashFlow(): Flow<List<CashFlowEntity>> = cashFlowDao.getAllAsFlow()
 
     override suspend fun deleteCashFlow(item: CashFlowEntity) {
-        cashFlowDao.insert(item)
+        cashFlowDao.delete(item)
     }
 
     override suspend fun insertCashFlow(item: CashFlowEntity) {
-        cashFlowDao.delete(item)
+        cashFlowDao.insert(item)
     }
+
+    override suspend fun getByDate(date: String): Flow<List<CashFlowEntity>> =
+        cashFlowDao.getByDateAsFlow(date)
 }
