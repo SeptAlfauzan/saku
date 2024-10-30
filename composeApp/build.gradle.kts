@@ -49,6 +49,8 @@ kotlin {
             implementation(libs.calendar.compose.multiplatform)
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
+            implementation("io.github.darkokoa:datetime-wheel-picker:1.0.2")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
         }
     }
 }
