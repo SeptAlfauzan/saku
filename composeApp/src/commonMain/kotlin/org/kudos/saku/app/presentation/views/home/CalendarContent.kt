@@ -15,12 +15,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,22 +43,35 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.YearMonth
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.minusMonths
+import com.kizitonwose.calendar.core.now
 import com.kizitonwose.calendar.core.plusMonths
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.presentation.widgets.calendar.SimpleCalendarTitle
 import org.kudos.saku.app.presentation.widgets.common.GroupedCashFlowCard
+import org.kudos.saku.utils.UIState
 import org.kudos.saku.utils.advancedTitleCase
 
 @Composable
-fun CalendarContent(adjacentMonths: Int = 500) {
+fun CalendarContent(
+    loadCashFlowFromDate: (date: String) -> Unit,
+    cashFlowGroupSelectedEntitiesStateFlow: StateFlow<UIState<Pair<List<CashFlow>, List<CashFlow>>>>,
+    adjacentMonths: Int = 500
+) {
 
+    val today = CalendarDay(
+        date = LocalDate.now(),
+        position = DayPosition.MonthDate
+    )
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(adjacentMonths) }
     val endMonth = remember { currentMonth.plusMonths(adjacentMonths) }
-    var selectedDay by remember { mutableStateOf<CalendarDay?>(null) }
+    var selectedDay by rememberSaveable { mutableStateOf<String?>(today.date.toString()) }
     val daysOfWeek = remember { daysOfWeek() }
     val state = rememberCalendarState(
         startMonth = startMonth,
@@ -71,6 +88,12 @@ fun CalendarContent(adjacentMonths: Int = 500) {
             BorderStroke(width = 1.dp, color = Color(0xFFA6A6A6)),
             shape = RoundedCornerShape(12.dp)
         )
+
+    LaunchedEffect(selectedDay) {
+        selectedDay?.let { date ->
+            loadCashFlowFromDate(date)
+        }
+    }
 
     Column {
         Column(
@@ -98,13 +121,13 @@ fun CalendarContent(adjacentMonths: Int = 500) {
 
                     Day(
                         day,
-                        isSelected = selectedDay == day,
+                        isSelected = selectedDay == day.date.toString(),
                         isFromCurrentMonth = isFromCurrentMonth
                     ) { clicked ->
-                        selectedDay = if (selectedDay == clicked) {
+                        selectedDay = if (selectedDay == clicked.date.toString()) {
                             null
                         } else {
-                            day
+                            day.date.toString()
                         }
                     }
                 },
@@ -118,84 +141,41 @@ fun CalendarContent(adjacentMonths: Int = 500) {
             style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp),
             modifier = Modifier.padding(top = 32.dp, bottom = 16.dp)
         )
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 64.dp)) {
-            item {
-                GroupedCashFlowCard(
-                    entities = cashOutEntities,
-                    isCashIn = false,
-                )
+        cashFlowGroupSelectedEntitiesStateFlow.collectAsState().value.let {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 64.dp)
+            ) {
+                when (it) {
+                    is UIState.Error -> item {
+                        Text(it.error)
+                    }
+
+                    is UIState.Loading -> item {
+                        CircularProgressIndicator()
+                    }
+
+                    is UIState.Success -> {
+                        item {
+                            GroupedCashFlowCard(
+                                entities = it.data.first,
+                                isCashIn = false,
+                            )
+                        }
+                        item {
+                            GroupedCashFlowCard(
+                                entities = it.data.second,
+                                isCashIn = true,
+                            )
+                        }
+                    }
+                }
             }
-            item {
-                GroupedCashFlowCard(
-                    entities = cashInEntities,
-                    isCashIn = true,
-                )
-            }
+
         }
     }
 }
 
-val cashOutEntities = listOf(
-    CashFlow(
-        id = "asdads",
-        text = "Beli telur 1kg",
-        isCashIn = false,
-        amount = 13000L,
-        created = "30-10-2024"
-    ),
-    CashFlow(
-        id = "asdads",
-        text = "Beli telur 1kg",
-        isCashIn = false,
-        amount = 13000L,
-        created = "30-10-2024"
-    ),
-    CashFlow(
-        id = "asdads",
-        text = "Beli telur 1kg",
-        isCashIn = false,
-        amount = 13000L,
-        created = "30-10-2024"
-    ),
-    CashFlow(
-        id = "asdads",
-        text = "Beli telur 1kg",
-        isCashIn = false,
-        amount = 13000L,
-        created = "30-10-2024"
-    ),
-)
-
-val cashInEntities = listOf(
-    CashFlow(
-        id = "asdads",
-        text = "Beli telur 1kg",
-        isCashIn = true,
-        amount = 13000L,
-        created = "30-10-2024"
-    ),
-    CashFlow(
-        id = "asdads",
-        text = "Beli telur 1kg",
-        isCashIn = true,
-        amount = 13000L,
-        created = "30-10-2024"
-    ),
-    CashFlow(
-        id = "asdads",
-        text = "Beli telur 1kg",
-        isCashIn = true,
-        amount = 13000L,
-        created = "30-10-2024"
-    ),
-    CashFlow(
-        id = "asdads",
-        text = "Beli telur 1kg",
-        isCashIn = true,
-        amount = 13000L,
-        created = "30-10-2024"
-    ),
-)
 
 @Composable
 private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
@@ -249,5 +229,8 @@ private fun Day(
 @Preview
 @Composable
 private fun Example1Preview() {
-    CalendarContent()
+    CalendarContent(
+        loadCashFlowFromDate = {},
+        cashFlowGroupSelectedEntitiesStateFlow = MutableStateFlow(UIState.Loading)
+    )
 }

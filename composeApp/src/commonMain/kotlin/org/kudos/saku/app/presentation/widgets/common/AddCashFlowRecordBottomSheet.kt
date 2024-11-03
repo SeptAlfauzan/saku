@@ -44,7 +44,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -64,6 +63,7 @@ fun AddCashFlowRecordBottomSheet(
     onDismiss: () -> Unit,
     insertCashFlowToDB: (CashFlow, () -> Unit) -> Unit,
     isSavingCashFlow: StateFlow<Boolean>,
+    onSuccess: () -> Unit,
     animationSpec: AnimationSpec<Float> = tween(300),
 ) {
     var sheetHeight by remember { mutableStateOf(0f) }
@@ -159,6 +159,7 @@ fun AddCashFlowRecordBottomSheet(
                         )
                         insertCashFlowToDB(item) {
                             resetFormValues()
+                            onSuccess()
                             onDismiss()
                         }
                     }
@@ -181,6 +182,7 @@ private fun AddCashFlowForm(
     onCancel: () -> Unit,
     onOk: () -> Unit,
 ) {
+
     val gray = Color(0xFFA6A6A6)
     val textGray = TextStyle(color = gray)
     Column(

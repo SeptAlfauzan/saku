@@ -1,11 +1,13 @@
 package org.kudos.saku.app.data.repositories
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOf
 import org.kudos.saku.app.data.source.local.room.dao.CashFlowDao
 import org.kudos.saku.app.data.source.local.room.entities.CashFlowEntity
 import org.kudos.saku.app.domain.repositories.CashFlowRepository
 
-class CashFlowRepositoryImpl constructor(override val cashFlowDao: CashFlowDao) :
+class CashFlowRepositoryImpl (override val cashFlowDao: CashFlowDao) :
     CashFlowRepository {
     override suspend fun getCashFlow(): Flow<List<CashFlowEntity>> = cashFlowDao.getAllAsFlow()
 
@@ -19,4 +21,11 @@ class CashFlowRepositoryImpl constructor(override val cashFlowDao: CashFlowDao) 
 
     override suspend fun getByDate(date: String): Flow<List<CashFlowEntity>> =
         cashFlowDao.getByDateAsFlow(date)
+
+    override suspend fun getGroupedByDate(date: String): Flow<Pair<List<CashFlowEntity>, List<CashFlowEntity>>> {
+        val entities = cashFlowDao.getByDateAsFlow(date).firstOrNull()
+        val cashOutEntities = entities?.filter { !it.isCashIn } ?: listOf()
+        val cashInEntities = entities?.filter { it.isCashIn } ?: listOf()
+        return flowOf(Pair(cashOutEntities, cashInEntities))
+    }
 }

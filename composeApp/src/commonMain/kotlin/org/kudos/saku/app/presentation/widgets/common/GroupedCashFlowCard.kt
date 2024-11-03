@@ -35,8 +35,15 @@ fun GroupedCashFlowCard(
                 modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
                 style = TextStyle(Color(0xFFB9B8B8))
             )
-            entities.map {
-                ItemCashFlow(it)
+            if (entities.isEmpty()) {
+                Text(
+                    "No data for this date",
+                    modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
+                )
+            } else {
+                entities.map {
+                    ItemCashFlow(it)
+                }
             }
         }
     }

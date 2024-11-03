@@ -1,5 +1,6 @@
 package org.kudos.saku.app.presentation.views.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,19 +29,20 @@ import org.kudos.saku.app.presentation.widgets.setting.SeeChartCard
 import org.kudos.saku.app.presentation.widgets.setting.TodayCard
 import org.kudos.saku.utils.UIState
 
-
+@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 fun HomeContent(
-    cashFlowEntitiesStateFlow: StateFlow<UIState<List<CashFlow>>>,
+    onSwipeDelete: (CashFlow) -> Unit,
+    todayCashFlowEntitiesStateFlow: StateFlow<UIState<List<CashFlow>>>,
     modifier: Modifier = Modifier
 ) {
+
     val textStyle = TextStyle(
         color = Color(0xFF29515B)
     )
-    cashFlowEntitiesStateFlow.collectAsState().value.let { cashFlowEntitiesUiState ->
-
-        LazyColumn {
+    todayCashFlowEntitiesStateFlow.collectAsState().value.let { cashFlowEntitiesUiState ->
+        LazyColumn(verticalArrangement = Arrangement.Top) {
             item {
                 Column(Modifier.fillMaxWidth()) {
                     Row(
@@ -61,19 +63,23 @@ fun HomeContent(
                 is UIState.Error -> item {
                     Text(cashFlowEntitiesUiState.error)
                 }
+
                 UIState.Loading -> item {
                     Box(Modifier.fillMaxWidth()) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
+
                 is UIState.Success -> {
                     if (cashFlowEntitiesUiState.data.isEmpty()) {
                         item {
                             Text("No data added today")
                         }
                     } else {
-                        items(cashFlowEntitiesUiState.data) {
+                        items(cashFlowEntitiesUiState.data, key = { item -> item.id }) {
                             CashFlowCard(
+                                modifier = modifier.animateItemPlacement(),
+                                onSwipeDelete = { onSwipeDelete(it) },
                                 isCashIn = it.isCashIn,
                                 money = it.amount,
                                 created = it.created

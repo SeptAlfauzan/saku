@@ -23,7 +23,7 @@ interface CashFlowDao {
     fun getByDateAsFlow(date: String): Flow<List<CashFlowEntity>>
 
     @Delete
-    fun delete(item: CashFlowEntity)
+    suspend fun delete(item: CashFlowEntity)
 
     @Upsert
     suspend fun upsert(item: CashFlowEntity)

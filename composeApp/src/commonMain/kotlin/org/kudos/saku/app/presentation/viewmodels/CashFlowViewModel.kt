@@ -1,10 +1,12 @@
 package org.kudos.saku.app.presentation.viewmodels
 
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -21,6 +23,8 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
     val cashFlowEntities: StateFlow<UIState<List<CashFlow>>> = _cashFlowEntities
     private val _isSavingCashFlowEntity: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isSavingCashFlowEntity: StateFlow<Boolean> = _isSavingCashFlowEntity
+    private val _groupedSelectedCashFlowEntities: MutableStateFlow<UIState<Pair<List<CashFlow>, List<CashFlow>>>> = MutableStateFlow(UIState.Loading)
+    val groupedSelectedCashFlowEntities: StateFlow<UIState<Pair<List<CashFlow>, List<CashFlow>>>> = _groupedSelectedCashFlowEntities
 
     fun getCashFlowEntities() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -38,6 +42,63 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
                             created = cashFlowEntity.created
                         )
                     })
+                }
+            } catch (e: Exception) {
+                _cashFlowEntities.value = UIState.Error(e.message ?: "Error")
+            }
+        }
+    }
+
+    fun getCashFlowEntitiesByDate(date: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _cashFlowEntities.value = UIState.Loading
+                cashFlowRepository.getByDate(date).catch {
+                    _cashFlowEntities.value = UIState.Error(it.message ?: "Error")
+                }.collect {
+                    _cashFlowEntities.value = UIState.Success(it.map { cashFlowEntity ->
+                        CashFlow(
+                            id = cashFlowEntity.id,
+                            text = cashFlowEntity.text,
+                            amount = cashFlowEntity.amount,
+                            isCashIn = cashFlowEntity.isCashIn,
+                            created = cashFlowEntity.created
+                        )
+                    })
+                }
+            } catch (e: Exception) {
+                _cashFlowEntities.value = UIState.Error(e.message ?: "Error")
+            }
+        }
+    }
+
+
+    fun getGroupedCashFlowEntitiesByDate(date: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _groupedSelectedCashFlowEntities.value = UIState.Loading
+                cashFlowRepository.getGroupedByDate(date).catch {
+                    _groupedSelectedCashFlowEntities.value = UIState.Error(it.message ?: "Error")
+                }.collect {
+                    val cashInEntities = it.second.map { cashFlowEntity ->
+                        CashFlow(
+                            id = cashFlowEntity.id,
+                            text = cashFlowEntity.text,
+                            amount = cashFlowEntity.amount,
+                            isCashIn = cashFlowEntity.isCashIn,
+                            created = cashFlowEntity.created
+                        )
+                    }
+                    val cashOutEntities = it.first.map { cashFlowEntity ->
+                        CashFlow(
+                            id = cashFlowEntity.id,
+                            text = cashFlowEntity.text,
+                            amount = cashFlowEntity.amount,
+                            isCashIn = cashFlowEntity.isCashIn,
+                            created = cashFlowEntity.created
+                        )
+                    }
+                    _groupedSelectedCashFlowEntities.value = UIState.Success(Pair(cashOutEntities, cashInEntities))
                 }
             } catch (e: Exception) {
                 _cashFlowEntities.value = UIState.Error(e.message ?: "Error")
@@ -64,6 +125,33 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
                 }
             } catch (e: Exception) {
                 // TODO: add error handler
+            } finally {
+                _isSavingCashFlowEntity.value = false
+            }
+        }
+
+    }
+    fun deleteCashFlow(item: CashFlow, onSuccess: () -> Unit, onFail: (String) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _isSavingCashFlowEntity.value = true
+                val entity = CashFlowEntity(
+                    id = item.id,
+                    text = item.text,
+                    amount = item.amount,
+                    created = item.created,
+                    isCashIn = item.isCashIn
+                )
+                cashFlowRepository.deleteCashFlow(entity)
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                    Napier.i("viewmodel $item success")
+                }
+            } catch (e: Exception) {
+                Napier.e { "Error $e" }
+                withContext(Dispatchers.Main) {
+                    onFail(e.message ?: "Error")
+                }
             } finally {
                 _isSavingCashFlowEntity.value = false
             }
