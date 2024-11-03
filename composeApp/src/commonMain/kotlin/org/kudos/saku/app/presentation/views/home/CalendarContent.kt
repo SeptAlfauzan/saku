@@ -45,6 +45,7 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.minusMonths
 import com.kizitonwose.calendar.core.now
 import com.kizitonwose.calendar.core.plusMonths
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -91,6 +92,7 @@ fun CalendarContent(
 
     LaunchedEffect(selectedDay) {
         selectedDay?.let { date ->
+            Napier.d { date }
             loadCashFlowFromDate(date)
         }
     }

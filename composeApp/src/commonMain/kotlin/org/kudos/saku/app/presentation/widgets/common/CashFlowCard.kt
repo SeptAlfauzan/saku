@@ -9,8 +9,6 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
-import androidx.compose.foundation.gestures.snapTo
-import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,13 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
-import androidx.compose.material.SwipeableState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,14 +37,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.kudos.saku.utils.toIdr
 import kotlin.math.roundToInt
 
-
 enum class DragValue { START, CENTER, END }
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -60,12 +53,12 @@ fun CashFlowCard(
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
-    val draggableState = remember {
+    val draggableState: AnchoredDraggableState<DragValue> = remember {
         AnchoredDraggableState(
             initialValue = DragValue.START,
-            positionalThreshold = { distance: Float -> distance * 0.5f },
-            velocityThreshold = { with(density) { 100.dp.toPx() } },
-            animationSpec = tween(durationMillis = 300)
+            positionalThreshold = { distance: Float -> distance * 0.5f } as (Float) -> Float,
+            velocityThreshold = { with(density) { 100.dp.toPx() } } as () -> Float,
+            animationSpec = tween(durationMillis = 300),
         )
     }
     val coroutineScope = rememberCoroutineScope()

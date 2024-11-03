@@ -49,10 +49,18 @@ kotlin {
             implementation(libs.calendar.compose.multiplatform)
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
-            implementation("io.github.darkokoa:datetime-wheel-picker:1.0.2")
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-            implementation("io.github.aakira:napier:2.7.1")
-
+            implementation(libs.datetime.wheel.picker)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.napier)
+            implementation(libs.koalaplot.core)
+            // Voyager Navigation
+            implementation("cafe.adriel.voyager:voyager-navigator:1.0.0")
+            // Optional: For transitions
+            implementation("cafe.adriel.voyager:voyager-transitions:1.0.0")
+            // Optional: For tab navigation
+            implementation("cafe.adriel.voyager:voyager-tab-navigator:1.0.0")
+            // Optional: For bottom sheet navigation
+            implementation("cafe.adriel.voyager:voyager-bottom-sheet-navigator:1.0.0")
         }
     }
 }
@@ -60,8 +68,8 @@ kotlin {
 android {
     namespace = "org.kudos.saku"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
     defaultConfig {
+        multiDexEnabled = true
         applicationId = "org.kudos.saku"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
@@ -81,6 +89,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
@@ -91,5 +100,6 @@ room {
 dependencies {
     debugImplementation(compose.uiTooling)
     ksp(libs.room.compiler)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
 

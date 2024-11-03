@@ -27,7 +27,7 @@ fun GroupedCashFlowCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(width = 1.dp, color = Color(0xFFA6A6A6))
+        border = BorderStroke(width = 0.4.dp, color = Color(0xFFA6A6A6))
     ) {
         Column(modifier.fillMaxWidth().padding(vertical = 16.dp)) {
             Text(
@@ -51,10 +51,9 @@ fun GroupedCashFlowCard(
 
 
 @Composable
-private fun ItemCashFlow(entitity: CashFlow, modifier: Modifier = Modifier) {
-    val borderColor = if (entitity.isCashIn) Color(0xFFBFFF67) else Color(0xFFFF4D4D)
+private fun ItemCashFlow(entity: CashFlow, modifier: Modifier = Modifier) {
+    val borderColor = if (entity.isCashIn) Color(0xFFBFFF67) else Color(0xFFFF4D4D)
     Row(modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).drawBehind {
-
         val strokeWidth = 4 * density
         val y = size.height
 
@@ -62,7 +61,7 @@ private fun ItemCashFlow(entitity: CashFlow, modifier: Modifier = Modifier) {
             borderColor, Offset(0f, 0f), Offset(0f, y), strokeWidth
         )
     }, horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(entitity.text, modifier = Modifier.padding(start = 12.dp))
-        Text(entitity.amount.toIdr(), style = TextStyle())
+        Text(entity.text, modifier = Modifier.padding(start = 12.dp))
+        Text(entity.amount.toIdr(), style = TextStyle())
     }
 }

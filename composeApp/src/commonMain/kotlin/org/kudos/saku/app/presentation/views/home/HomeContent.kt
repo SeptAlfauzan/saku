@@ -21,11 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.kudos.saku.app.domain.entities.CashFlow
+import org.kudos.saku.app.presentation.views.stats.StatsScreen
 import org.kudos.saku.app.presentation.widgets.common.CashFlowCard
-import org.kudos.saku.app.presentation.widgets.setting.SeeChartCard
+import org.kudos.saku.app.presentation.widgets.setting.StatsCard
 import org.kudos.saku.app.presentation.widgets.setting.TodayCard
 import org.kudos.saku.utils.UIState
 
@@ -33,11 +36,13 @@ import org.kudos.saku.utils.UIState
 @Preview
 @Composable
 fun HomeContent(
+    todayAndMonthCashFlowReport: StateFlow<UIState<Pair<Long,Long>>>,
+    loadTodayAndMonthCashFlowReport: (date: String) -> Unit,
     onSwipeDelete: (CashFlow) -> Unit,
     todayCashFlowEntitiesStateFlow: StateFlow<UIState<List<CashFlow>>>,
     modifier: Modifier = Modifier
 ) {
-
+    val navigator = LocalNavigator.currentOrThrow
     val textStyle = TextStyle(
         color = Color(0xFF29515B)
     )
@@ -46,11 +51,17 @@ fun HomeContent(
             item {
                 Column(Modifier.fillMaxWidth()) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(24.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.padding(bottom = 36.dp).height(204.dp).fillMaxWidth()
                     ) {
-                        TodayCard(modifier.fillMaxHeight().width(200.dp))
-                        SeeChartCard(modifier.fillMaxHeight().weight(1f))
+                        TodayCard(
+                            modifier.fillMaxHeight().width(200.dp))
+                        StatsCard(
+                            todayAndMonthCashFlowReport,
+                            loadTodayAndMonthCashFlowReport,
+                            navigateStatsView = { navigator.push(StatsScreen()) },
+                            modifier.fillMaxHeight().weight(1f)
+                        )
                     }
                     Text(
                         "Total financial flow",
@@ -63,13 +74,11 @@ fun HomeContent(
                 is UIState.Error -> item {
                     Text(cashFlowEntitiesUiState.error)
                 }
-
-                UIState.Loading -> item {
+                is UIState.Loading -> item {
                     Box(Modifier.fillMaxWidth()) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
-
                 is UIState.Success -> {
                     if (cashFlowEntitiesUiState.data.isEmpty()) {
                         item {

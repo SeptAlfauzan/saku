@@ -1,15 +1,14 @@
 package org.kudos.saku.app.presentation.viewmodels
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kudos.saku.app.data.source.local.room.entities.CashFlowEntity
@@ -23,8 +22,14 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
     val cashFlowEntities: StateFlow<UIState<List<CashFlow>>> = _cashFlowEntities
     private val _isSavingCashFlowEntity: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isSavingCashFlowEntity: StateFlow<Boolean> = _isSavingCashFlowEntity
-    private val _groupedSelectedCashFlowEntities: MutableStateFlow<UIState<Pair<List<CashFlow>, List<CashFlow>>>> = MutableStateFlow(UIState.Loading)
-    val groupedSelectedCashFlowEntities: StateFlow<UIState<Pair<List<CashFlow>, List<CashFlow>>>> = _groupedSelectedCashFlowEntities
+    private val _groupedSelectedCashFlowEntities: MutableStateFlow<UIState<Pair<List<CashFlow>, List<CashFlow>>>> =
+        MutableStateFlow(UIState.Loading)
+    val groupedSelectedCashFlowEntities: StateFlow<UIState<Pair<List<CashFlow>, List<CashFlow>>>> =
+        _groupedSelectedCashFlowEntities
+
+    private val _dashboardCashFlowReport: MutableStateFlow<UIState<Pair<Long, Long>>> =
+        MutableStateFlow(UIState.Loading)
+    val dashboardCashFlowReport: StateFlow<UIState<Pair<Long, Long>>> = _dashboardCashFlowReport
 
     fun getCashFlowEntities() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -33,6 +38,7 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
                 cashFlowRepository.getCashFlow().catch {
                     _cashFlowEntities.value = UIState.Error(it.message ?: "Error")
                 }.collect {
+                    Napier.d { "data: $it" }
                     _cashFlowEntities.value = UIState.Success(it.map { cashFlowEntity ->
                         CashFlow(
                             id = cashFlowEntity.id,
@@ -56,6 +62,7 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
                 cashFlowRepository.getByDate(date).catch {
                     _cashFlowEntities.value = UIState.Error(it.message ?: "Error")
                 }.collect {
+                    Napier.d { "data: $it" }
                     _cashFlowEntities.value = UIState.Success(it.map { cashFlowEntity ->
                         CashFlow(
                             id = cashFlowEntity.id,
@@ -77,7 +84,7 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _groupedSelectedCashFlowEntities.value = UIState.Loading
-                cashFlowRepository.getGroupedByDate(date).catch {
+                cashFlowRepository.getGroupedCashInCashOutByDate(date).catch {
                     _groupedSelectedCashFlowEntities.value = UIState.Error(it.message ?: "Error")
                 }.collect {
                     val cashInEntities = it.second.map { cashFlowEntity ->
@@ -98,7 +105,8 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
                             created = cashFlowEntity.created
                         )
                     }
-                    _groupedSelectedCashFlowEntities.value = UIState.Success(Pair(cashOutEntities, cashInEntities))
+                    _groupedSelectedCashFlowEntities.value =
+                        UIState.Success(Pair(cashOutEntities, cashInEntities))
                 }
             } catch (e: Exception) {
                 _cashFlowEntities.value = UIState.Error(e.message ?: "Error")
@@ -119,7 +127,7 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
                     isCashIn = item.isCashIn
                 )
                 cashFlowRepository.insertCashFlow(entity)
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     onSuccess()
                     Napier.i("viewmodel $item success")
                 }
@@ -131,6 +139,7 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
         }
 
     }
+
     fun deleteCashFlow(item: CashFlow, onSuccess: () -> Unit, onFail: (String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -154,6 +163,41 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
                 }
             } finally {
                 _isSavingCashFlowEntity.value = false
+            }
+        }
+    }
+
+
+    fun getReportTodayAndMonthlyCashFlow(date: String) {
+        val month = date.slice(5..6)
+        val year = date.slice(0..3).toInt()
+
+        Napier.d { "month: $month" }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _dashboardCashFlowReport.value = UIState.Loading
+
+            val currentDateData = cashFlowRepository.getCurrentDateDifference(date)
+            val currentMonthData = cashFlowRepository.getCurrentMonthDifference(month, year)
+            currentDateData.combine(currentMonthData, transform = { dateData, monthData ->
+                Pair(
+                    dateData,
+                    monthData
+                )
+            }).catch { err ->
+                _dashboardCashFlowReport.value = UIState.Error(err.message ?: "Error, try again")
+            }.collect { data ->
+                _dashboardCashFlowReport.value = UIState.Success(data)
+            }
+        }
+    }
+
+    fun getMonthlyCashFlowReport() {
+        viewModelScope.launch(Dispatchers.IO) {
+            cashFlowRepository.getMonthlyCashFlowReport().catch {
+                Napier.e { "Error: $it" }
+            }.collect {
+                Napier.d { "difference $it" }
             }
         }
     }

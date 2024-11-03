@@ -22,13 +22,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.now
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.kudos.saku.app.domain.entities.CashFlow
+import org.kudos.saku.app.presentation.viewmodels.CashFlowViewModel
 import org.kudos.saku.app.presentation.widgets.common.AddCashFlowRecordBottomSheet
 import org.kudos.saku.app.presentation.widgets.common.ButtonType
 import org.kudos.saku.app.presentation.widgets.common.PillButton
@@ -36,9 +39,55 @@ import org.kudos.saku.app.presentation.widgets.home.HomeFloatingActionButton
 import org.kudos.saku.app.presentation.widgets.home.HomeTopBar
 import org.kudos.saku.utils.UIState
 
+class HomeScreen(private val cashFlowViewModel: CashFlowViewModel) : Screen {
+
+
+    @Composable
+    override fun Content() {
+        Home(
+            onSwipeDeleteEntity = {
+                cashFlowViewModel.deleteCashFlow(it, onSuccess = {
+                    Napier.i { "Success" }
+                }, onFail = {
+                    Napier.e { it }
+                })
+            },
+            loadCashFlowEntitiesByDate = {
+                cashFlowViewModel.getCashFlowEntitiesByDate(
+                    it
+                )
+            },
+            cashFlowEntitiesStateFlow = cashFlowViewModel.cashFlowEntities,
+            loadGroupSelectedCashFlowEntitiesByDate = {
+                cashFlowViewModel.getGroupedCashFlowEntitiesByDate(
+                    it
+                )
+            },
+
+            cashFlowGroupSelectedEntitiesStateFlow = cashFlowViewModel.groupedSelectedCashFlowEntities,
+            insertCashFlowToDB = { item, cb ->
+                cashFlowViewModel.insertCashFlow(
+                    item,
+                    cb
+                )
+            },
+            isSavingCashFlowSateFlow = cashFlowViewModel.isSavingCashFlowEntity,
+            currentDateAndMonthCashFlowReport = cashFlowViewModel.dashboardCashFlowReport,
+            loadCurrentDateAndMonthCashFlowReport = {
+                cashFlowViewModel.getReportTodayAndMonthlyCashFlow(
+                    it
+                )
+            }
+        )
+
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Home(
+    currentDateAndMonthCashFlowReport: StateFlow<UIState<Pair<Long, Long>>>,
+    loadCurrentDateAndMonthCashFlowReport: (date: String) -> Unit,
     onSwipeDeleteEntity: (CashFlow) -> Unit,
     loadCashFlowEntitiesByDate: (date: String) -> Unit,
     cashFlowEntitiesStateFlow: StateFlow<UIState<List<CashFlow>>>,
@@ -100,8 +149,9 @@ fun Home(
                     HorizontalPager(state = pagerState) { page ->
                         when (page) {
                             0 -> HomeContent(
-                                todayCashFlowEntitiesStateFlow =
-                                cashFlowEntitiesStateFlow,
+                                todayAndMonthCashFlowReport = currentDateAndMonthCashFlowReport,
+                                loadTodayAndMonthCashFlowReport = loadCurrentDateAndMonthCashFlowReport,
+                                todayCashFlowEntitiesStateFlow = cashFlowEntitiesStateFlow,
                                 onSwipeDelete = onSwipeDeleteEntity
                             )
 
@@ -127,6 +177,7 @@ fun Home(
             onDismiss = { showBottomSheet = false })
     }
 }
+
 
 data class Menu(
     val text: String,

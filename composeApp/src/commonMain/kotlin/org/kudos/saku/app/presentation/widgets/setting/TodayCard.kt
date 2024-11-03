@@ -18,7 +18,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 
 @Composable
-fun TodayCard(modifier: Modifier = Modifier) {
+fun TodayCard(
+    modifier: Modifier = Modifier) {
     val textStyle = TextStyle(
         color = Color(0xFF29515B)
     )

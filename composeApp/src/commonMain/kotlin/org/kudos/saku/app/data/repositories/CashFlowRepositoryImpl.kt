@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import org.kudos.saku.app.data.source.local.room.dao.CashFlowDao
 import org.kudos.saku.app.data.source.local.room.entities.CashFlowEntity
+import org.kudos.saku.app.domain.entities.MonthlyCashFlow
 import org.kudos.saku.app.domain.repositories.CashFlowRepository
 
 class CashFlowRepositoryImpl (override val cashFlowDao: CashFlowDao) :
@@ -22,10 +23,13 @@ class CashFlowRepositoryImpl (override val cashFlowDao: CashFlowDao) :
     override suspend fun getByDate(date: String): Flow<List<CashFlowEntity>> =
         cashFlowDao.getByDateAsFlow(date)
 
-    override suspend fun getGroupedByDate(date: String): Flow<Pair<List<CashFlowEntity>, List<CashFlowEntity>>> {
+    override suspend fun getGroupedCashInCashOutByDate(date: String): Flow<Pair<List<CashFlowEntity>, List<CashFlowEntity>>> {
         val entities = cashFlowDao.getByDateAsFlow(date).firstOrNull()
         val cashOutEntities = entities?.filter { !it.isCashIn } ?: listOf()
         val cashInEntities = entities?.filter { it.isCashIn } ?: listOf()
         return flowOf(Pair(cashOutEntities, cashInEntities))
     }
+    override suspend fun getCurrentDateDifference(date: String): Flow<Long> = cashFlowDao.getSelectedDateCashInCashOutDifference(date)
+    override suspend fun getCurrentMonthDifference(month: String, year: Int): Flow<Long> = cashFlowDao.getSelectedMonthCashInCashOutDifference(month, year)
+    override suspend fun getMonthlyCashFlowReport(): Flow<List<MonthlyCashFlow>> = cashFlowDao.getMonthlyCashInCashOutDifference()
 }
