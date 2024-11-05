@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
@@ -46,6 +48,7 @@ import com.kizitonwose.calendar.core.minusMonths
 import com.kizitonwose.calendar.core.now
 import com.kizitonwose.calendar.core.plusMonths
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -56,7 +59,9 @@ import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.presentation.widgets.calendar.SimpleCalendarTitle
 import org.kudos.saku.app.presentation.widgets.common.GroupedCashFlowCard
 import org.kudos.saku.utils.UIState
+import org.kudos.saku.utils.WindowSize
 import org.kudos.saku.utils.advancedTitleCase
+import org.kudos.saku.utils.rememberWindowSize
 
 @Composable
 fun CalendarContent(
@@ -64,7 +69,9 @@ fun CalendarContent(
     cashFlowGroupSelectedEntitiesStateFlow: StateFlow<UIState<Pair<List<CashFlow>, List<CashFlow>>>>,
     adjacentMonths: Int = 500
 ) {
-
+    val textStyle = TextStyle(
+        color = Color(0xFF29515B)
+    )
     val today = CalendarDay(
         date = LocalDate.now(),
         position = DayPosition.MonthDate
@@ -97,84 +104,145 @@ fun CalendarContent(
         }
     }
 
-    Column {
-        Column(
-            modifier = calendarContainerModifier,
-        ) {
-            SimpleCalendarTitle(
-                modifier = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
-                currentMonth = state.firstVisibleMonth.yearMonth,
-                goToPrevious = {
-                    coroutineScope.launch {
-                        state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.minusMonths(1))
-                    }
-                },
-                goToNext = {
-                    coroutineScope.launch {
-                        state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.plusMonths(1))
-                    }
-                },
-            )
-            HorizontalCalendar(
-                modifier = Modifier.testTag("Calendar"),
-                state = state,
-                dayContent = { day ->
-                    val isFromCurrentMonth = day.position == DayPosition.MonthDate
-
-                    Day(
-                        day,
-                        isSelected = selectedDay == day.date.toString(),
-                        isFromCurrentMonth = isFromCurrentMonth
-                    ) { clicked ->
-                        selectedDay = if (selectedDay == clicked.date.toString()) {
+    BoxWithConstraints {
+        val screenWidth = maxWidth
+        val windowSize = rememberWindowSize(screenWidth)
+        when (windowSize) {
+            WindowSize.COMPACT -> Column {
+                RenderCalendar(
+                    selectedDay = selectedDay,
+                    state = state,
+                    onSelectDay = { clickedDay, day ->
+                        selectedDay = if (selectedDay == clickedDay.date.toString()) {
                             null
                         } else {
                             day.date.toString()
                         }
-                    }
-                },
-                monthHeader = {
-                    MonthHeader(daysOfWeek = daysOfWeek)
-                },
-            )
+                    },
+                    daysOfWeek = daysOfWeek,
+                    coroutineScope = coroutineScope,
+                    modifier = calendarContainerModifier
+                )
+                Text(
+                    "Details",
+                    style = textStyle,
+                    modifier = Modifier.padding(top = 32.dp, bottom = 16.dp)
+                )
+                RenderDetailsSelectedDay(cashFlowGroupSelectedEntitiesStateFlow)
+            }
+
+            else -> Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                Box(Modifier.weight(1f)) {
+                    RenderCalendar(
+                        selectedDay = selectedDay,
+                        state = state,
+                        onSelectDay = { clickedDay, day ->
+                            selectedDay = if (selectedDay == clickedDay.date.toString()) {
+                                null
+                            } else {
+                                day.date.toString()
+                            }
+                        },
+                        daysOfWeek = daysOfWeek,
+                        coroutineScope = coroutineScope,
+                        modifier = calendarContainerModifier
+                    )
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        "Details",
+                        style = textStyle,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    RenderDetailsSelectedDay(cashFlowGroupSelectedEntitiesStateFlow)
+                }
+            }
         }
-        Text(
-            "Rincian",
-            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp),
-            modifier = Modifier.padding(top = 32.dp, bottom = 16.dp)
-        )
-        cashFlowGroupSelectedEntitiesStateFlow.collectAsState().value.let {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = 64.dp)
-            ) {
-                when (it) {
-                    is UIState.Error -> item {
-                        Text(it.error)
-                    }
+    }
 
-                    is UIState.Loading -> item {
-                        CircularProgressIndicator()
-                    }
 
-                    is UIState.Success -> {
-                        item {
-                            GroupedCashFlowCard(
-                                entities = it.data.first,
-                                isCashIn = false,
-                            )
-                        }
-                        item {
-                            GroupedCashFlowCard(
-                                entities = it.data.second,
-                                isCashIn = true,
-                            )
-                        }
+}
+
+@Composable
+private fun RenderDetailsSelectedDay(cashFlowGroupSelectedEntitiesStateFlow: StateFlow<UIState<Pair<List<CashFlow>, List<CashFlow>>>>) {
+    cashFlowGroupSelectedEntitiesStateFlow.collectAsState().value.let {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 64.dp)
+        ) {
+            when (it) {
+                is UIState.Error -> item {
+                    Text(it.error)
+                }
+
+                is UIState.Loading -> item {
+                    CircularProgressIndicator()
+                }
+
+                is UIState.Success -> {
+                    item {
+                        GroupedCashFlowCard(
+                            entities = it.data.first,
+                            isCashIn = false,
+                        )
+                    }
+                    item {
+                        GroupedCashFlowCard(
+                            entities = it.data.second,
+                            isCashIn = true,
+                        )
                     }
                 }
             }
-
         }
+
+    }
+}
+
+@Composable
+private fun RenderCalendar(
+    selectedDay: String?,
+    state: CalendarState,
+    onSelectDay: (CalendarDay, CalendarDay) -> Unit,
+    coroutineScope: CoroutineScope,
+    daysOfWeek: List<DayOfWeek>,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+    ) {
+        SimpleCalendarTitle(
+            modifier = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
+            currentMonth = state.firstVisibleMonth.yearMonth,
+            goToPrevious = {
+                coroutineScope.launch {
+                    state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.minusMonths(1))
+                }
+            },
+            goToNext = {
+                coroutineScope.launch {
+                    state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.plusMonths(1))
+                }
+            },
+        )
+        HorizontalCalendar(
+            modifier = Modifier.testTag("Calendar"),
+            state = state,
+            dayContent = { day ->
+                val isFromCurrentMonth = day.position == DayPosition.MonthDate
+
+                Day(
+                    day,
+                    isSelected = selectedDay == day.date.toString(),
+                    isFromCurrentMonth = isFromCurrentMonth
+                ) { clicked ->
+                    onSelectDay(clicked, day)
+                }
+            },
+            monthHeader = {
+                MonthHeader(daysOfWeek = daysOfWeek)
+            },
+        )
     }
 }
 

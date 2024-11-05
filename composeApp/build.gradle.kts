@@ -62,6 +62,11 @@ kotlin {
             // Optional: For bottom sheet navigation
             implementation("cafe.adriel.voyager:voyager-bottom-sheet-navigator:1.0.0")
         }
+        getByName("commonMain") {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+            }
+        }
     }
 }
 

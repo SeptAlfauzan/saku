@@ -21,6 +21,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -103,12 +105,12 @@ fun CashFlowCard(
         ) {
             Column(Modifier.padding(12.dp)) {
                 Text(if (isCashIn) "Cash in" else "Cash out", style = textStyle)
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        if (isCashIn) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        Icons.AutoMirrored.Default.ArrowForward,
+                        modifier = Modifier.rotate( if (isCashIn) -45f else 45f),
                         contentDescription = null,
-                        tint = Color(if (isCashIn) 0xFFBFFF67 else 0xFFFF4D4D),
-                        modifier = Modifier.size(34.dp),
+                        tint = Color( if (isCashIn) 0xFF29515B else 0xFFFF4D4D)
                     )
                     Column {
                         Text(
