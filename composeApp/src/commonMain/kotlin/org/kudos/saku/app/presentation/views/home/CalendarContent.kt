@@ -49,12 +49,10 @@ import com.kizitonwose.calendar.core.now
 import com.kizitonwose.calendar.core.plusMonths
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.presentation.widgets.calendar.SimpleCalendarTitle
 import org.kudos.saku.app.presentation.widgets.common.GroupedCashFlowCard
@@ -294,13 +292,4 @@ private fun Day(
             fontSize = 14.sp,
         )
     }
-}
-
-@Preview
-@Composable
-private fun Example1Preview() {
-    CalendarContent(
-        loadCashFlowFromDate = {},
-        cashFlowGroupSelectedEntitiesStateFlow = MutableStateFlow(UIState.Loading)
-    )
 }

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -21,6 +23,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,8 +79,35 @@ fun StatsView(
         dataState =
             dataState.mapIndexed { i, chartItem -> if (i == index) chartItem.copy(isShowed = isShowed) else chartItem }
     }
+
+
+
     Scaffold(topBar = { TopBar(navigateBack) }) {
         Column(Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Your expenses")
+                Button(
+                    shape = RoundedCornerShape(8.dp),
+                    onClick = {},
+                    elevation = ButtonDefaults.elevation(0.dp),
+                    border = BorderStroke(1.dp, Color(0xFFD9D9D9)),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.White
+                    )
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text("07/04/2024")
+                        Icon(Icons.Default.DateRange, contentDescription = null)
+                    }
+                }
+            }
             Card(
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(width = 0.4.dp, color = Color(0xFFA6A6A6)),
@@ -166,7 +196,8 @@ private fun StatItem(
             )
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text)
                 Row(verticalAlignment = Alignment.CenterVertically) {

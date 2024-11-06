@@ -1,30 +1,21 @@
 package org.kudos.saku.app.presentation.widgets.common
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
@@ -37,12 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Clock
@@ -52,7 +40,6 @@ import kotlinx.datetime.todayIn
 import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.domain.entities.Input
 import org.kudos.saku.app.presentation.widgets.calendar.DatePicker
-import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -66,13 +53,7 @@ fun AddCashFlowRecordBottomSheet(
     onSuccess: () -> Unit,
     animationSpec: AnimationSpec<Float> = tween(300),
 ) {
-    var sheetHeight by remember { mutableStateOf(0f) }
-    var dragOffset by remember { mutableStateOf(0f) }
-    val animatedOffset by animateFloatAsState(
-        targetValue = if (showBottomSheet) 0f else sheetHeight,
-        animationSpec = animationSpec,
-        label = "bottomSheet"
-    )
+
     val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
     var selectedDate by remember { mutableStateOf(currentDate) }
     var descInput by remember { mutableStateOf(Input(value = "")) }
@@ -86,86 +67,45 @@ fun AddCashFlowRecordBottomSheet(
         isCashIn = false
     }
 
-    AnimatedVisibility(
-        visible = showBottomSheet,
-        enter = fadeIn(animationSpec = tween(200)),
-        exit = fadeOut(animationSpec = tween(200))
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f))
-                .pointerInput(Unit) {
-                    detectTapGestures {
-                        onDismiss()
-                    }
+    BottomSheet(
+        showBottomSheet = showBottomSheet,
+        onDismiss = onDismiss,
+        animationSpec = animationSpec,
+    ){
+        AddCashFlowForm(
+            onSelectDate = { selectedDate = it },
+            onCheckCashIn = { isCashIn = it },
+            isCashIn = isCashIn,
+            descInput = descInput,
+            amountInput = amountInput,
+            isFormValid = descInput.value != "" && amountInput.value != 0L,
+            onDescInputChange = {
+                descInput = descInput.copy(value = it)
+            },
+            onAmountInputChange = {
+                it.toLongOrNull()?.let { parsedValue ->
+                    amountInput = amountInput.copy(value = parsedValue)
                 }
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragEnd = {
-                            if (dragOffset > sheetHeight * 0.25f) {
-                                onDismiss()
-                            }
-                            dragOffset = 0f
-                        },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            dragOffset = (dragOffset + dragAmount.y).coerceAtLeast(0f)
-                        }
-                    )
-                }
-        ) {
-            Surface(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .offset { IntOffset(0, (animatedOffset + dragOffset).roundToInt()) }
-                    .onGloballyPositioned { coordinates ->
-                        sheetHeight = coordinates.size.height.toFloat()
-                    }
-                    .pointerInput(Unit) {
-                        // Stop tap propagation to scrim for the sheet content
-                        detectTapGestures { }
-                    },
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                color = MaterialTheme.colors.surface,
-                elevation = if (showBottomSheet) 8.dp else 0.dp,
-            ) {
-                AddCashFlowForm(
-                    onSelectDate = { selectedDate = it },
-                    onCheckCashIn = { isCashIn = it },
-                    isCashIn = isCashIn,
-                    descInput = descInput,
-                    amountInput = amountInput,
-                    isFormValid = descInput.value != "" && amountInput.value != 0L,
-                    onDescInputChange = {
-                        descInput = descInput.copy(value = it)
-                    },
-                    onAmountInputChange = {
-                        it.toLongOrNull()?.let { parsedValue ->
-                            amountInput = amountInput.copy(value = parsedValue)
-                        }
-                    },
-                    onCancel = {
-                        resetFormValues()
-                        onDismiss()
-                    },
-                    onOk = {
-                        val item = CashFlow(
-                            id = Uuid.random().toString(),
-                            text = descInput.value,
-                            amount = amountInput.value,
-                            created = selectedDate.toString(),
-                            isCashIn = isCashIn
-                        )
-                        insertCashFlowToDB(item) {
-                            resetFormValues()
-                            onSuccess()
-                            onDismiss()
-                        }
-                    }
+            },
+            onCancel = {
+                resetFormValues()
+                onDismiss()
+            },
+            onOk = {
+                val item = CashFlow(
+                    id = Uuid.random().toString(),
+                    text = descInput.value,
+                    amount = amountInput.value,
+                    created = selectedDate.toString(),
+                    isCashIn = isCashIn
                 )
+                insertCashFlowToDB(item) {
+                    resetFormValues()
+                    onSuccess()
+                    onDismiss()
+                }
             }
-        }
+        )
     }
 }
 
