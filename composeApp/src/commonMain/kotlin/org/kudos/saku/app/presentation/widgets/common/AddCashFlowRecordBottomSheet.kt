@@ -131,16 +131,6 @@ private fun AddCashFlowForm(
             .padding(vertical = 32.dp, horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Box(
-            Modifier
-                .height(4.dp)
-                .width(100.dp)
-                .background(Color(0xFFD9D9D9))
-                .clip(RoundedCornerShape(4.dp))
-                .align(Alignment.CenterHorizontally)
-                .padding(bottom = 36.dp)
-        )
-
         Column {
             Text("Select date", style = textGray)
             DatePicker(

@@ -22,15 +22,9 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         actionBar?.hide()
         Napier.base(DebugAntilog())
-        val dao = getDao(applicationContext).cashFlowDao()
-        val cashFlowRepository: CashFlowRepository = CashFlowRepositoryImpl(dao)
+        
         setContent {
-            val viewModel: CashFlowViewModel by viewModels {
-                ViewModelFactory<CashFlowRepository>(
-                    cashFlowRepository
-                )
-            }
-            App(cashFlowViewModel = viewModel)
+            App()
         }
     }
 }

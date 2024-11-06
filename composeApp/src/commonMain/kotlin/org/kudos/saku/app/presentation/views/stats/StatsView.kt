@@ -3,6 +3,7 @@ package org.kudos.saku.app.presentation.views.stats
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,6 +44,10 @@ import io.github.koalaplot.core.pie.PieChart
 import io.github.koalaplot.core.pie.PieLabelPlacement
 import io.github.koalaplot.core.pie.StraightLineConnector
 import io.github.koalaplot.core.util.ExperimentalKoalaPlotApi
+import org.kudos.saku.app.presentation.widgets.calendar.DatePicker
+import org.kudos.saku.app.presentation.widgets.common.BottomSheet
+import org.kudos.saku.app.presentation.widgets.common.ButtonType
+import org.kudos.saku.app.presentation.widgets.common.PillButton
 
 class StatsScreen : Screen {
     @Composable
@@ -59,20 +64,21 @@ val padding = 16.dp
 
 data class ChartItem<T>(val data: T, val isShowed: Boolean, val chartColor: Color)
 
-@OptIn(ExperimentalKoalaPlotApi::class)
 @Composable
 fun StatsView(
     navigateBack: () -> Unit, modifier: Modifier = Modifier
 ) {
-    var selectedIndex: Int? by remember { mutableStateOf(null) }
     val data = fibonacci.mapIndexed { i, it ->
         ChartItem(
             data = it, isShowed = true, chartColor = materialColors[i]
         )
     }
+    var filterIsExpense by remember { mutableStateOf(true) }
+    var selectedIndex: Int? by remember { mutableStateOf(null) }
     var dataState: List<ChartItem<Float>> by remember { mutableStateOf(data) }
-    val activeData = dataState.filter { it.isShowed }
+    var showBottomSheet by remember { mutableStateOf(false) }
     val activeDataValue = dataState.filter { it.isShowed }.map { it.data }
+    val activeData = dataState.filter { it.isShowed }
 
     fun updateDataVisibility(index: Int, isShowed: Boolean) {
         selectedIndex = null
@@ -81,82 +87,142 @@ fun StatsView(
     }
 
 
-
-    Scaffold(topBar = { TopBar(navigateBack) }) {
-        Column(Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Your expenses")
-                Button(
-                    shape = RoundedCornerShape(8.dp),
-                    onClick = {},
-                    elevation = ButtonDefaults.elevation(0.dp),
-                    border = BorderStroke(1.dp, Color(0xFFD9D9D9)),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color.White
-                    )
+    Box {
+        Scaffold(topBar = { TopBar(navigateBack) }) {
+            Column(Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+                RenderHeader(
+                    triggerBottomSheet = { showBottomSheet = !showBottomSheet },
+                    filterIsExpense = filterIsExpense,
+                    setFilterIsExpense = { filterIsExpense = it }
+                )
+                RenderPieChart(
+                    activeDataValue = activeDataValue,
+                    activeData = activeData,
+                    selectedIndex = selectedIndex,
+                    setSelectedIndex = { selectedIndex = it },
+                    modifier = modifier
+                )
+                LazyColumn(
+                    modifier = Modifier.padding(top = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text("07/04/2024")
-                        Icon(Icons.Default.DateRange, contentDescription = null)
+                    itemsIndexed(
+                        dataState,
+                        key = { index: Int, _: ChartItem<Float> -> index }) { index, it ->
+                        StatItem(text = it.data.toString(),
+                            isShowedInChart = it.isShowed,
+                            onChecked = { newValue ->
+                                updateDataVisibility(index = index, newValue)
+                            })
                     }
                 }
             }
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(width = 0.4.dp, color = Color(0xFFA6A6A6)),
-                modifier = modifier.fillMaxWidth().padding(vertical = 24.dp)
-            ) {
-                PieChart(
-                    labelConnector = { StraightLineConnector(connectorColor = Color(0xFFA6A6A6)) },
-                    labelPositionProvider = CircularLabelPositionProvider(
-                        labelSpacing = 1f,
-                        labelPlacement = PieLabelPlacement.InternalOrExternal(),
-                    ),
-                    values = activeDataValue,
-                    slice = { i: Int ->
-                        DefaultSlice(
-                            hoverExpandFactor = 1.05f,
-                            hoverElement = { Text(activeDataValue[i].toString()) },
-                            antiAlias = true,
-                            color = activeData.getOrNull(i)?.chartColor ?: Color.LightGray,
-                            gap = 0f,
-                            onClick = {
-                                (if (selectedIndex == i) null else i).also { selectedIndex = it }
-                            },
-                            clickable = true
-                        )
-                    },
-                    forceCenteredPie = true,
-                    holeSize = 0.8f,
-                    label = { i ->
-                        AnimatedVisibility(selectedIndex == i) {
-                            Text((activeData.getOrNull(i)?.data ?: "").toString())
-                        }
-                    },
+        }
+        BottomSheet(
+            showBottomSheet = showBottomSheet,
+            onDismiss = { showBottomSheet = false },
+        ) {
+            Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp)) {
+                Text("Select the date")
+                DatePicker(
+                    onDateSelected = {},
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
+        }
+    }
+}
 
-            LazyColumn(
-                modifier = Modifier.padding(top = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+@Composable
+private fun RenderHeader(
+    triggerBottomSheet: () -> Unit,
+    filterIsExpense: Boolean,
+    setFilterIsExpense: (Boolean) -> Unit
+) {
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Your expenses")
+            Button(
+                shape = RoundedCornerShape(8.dp),
+                onClick = triggerBottomSheet,
+                elevation = ButtonDefaults.elevation(0.dp),
+                border = BorderStroke(1.dp, Color(0xFFD9D9D9)),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.White
+                )
             ) {
-                itemsIndexed(dataState,
-                    key = { index: Int, _: ChartItem<Float> -> index }) { index, it ->
-                    StatItem(text = it.data.toString(),
-                        isShowedInChart = it.isShowed,
-                        onChecked = { newValue ->
-                            updateDataVisibility(index = index, newValue)
-                        })
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text("07/04/2024")
+                    Icon(Icons.Default.DateRange, contentDescription = null)
                 }
             }
         }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            PillButton(
+                "Expense",
+                onClick = { setFilterIsExpense(true) },
+                type = if (filterIsExpense) ButtonType.DEFAULT else ButtonType.OUTLINED
+            )
+            PillButton(
+                "Income",
+                onClick = { setFilterIsExpense(false) },
+                type = if (!filterIsExpense) ButtonType.DEFAULT else ButtonType.OUTLINED
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalKoalaPlotApi::class)
+@Composable
+private fun RenderPieChart(
+    activeDataValue: List<Float>,
+    activeData: List<ChartItem<Float>>,
+    selectedIndex: Int?,
+    setSelectedIndex: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(width = 0.4.dp, color = Color(0xFFA6A6A6)),
+        modifier = modifier.fillMaxWidth().padding(vertical = 24.dp)
+    ) {
+        PieChart(
+            labelConnector = { StraightLineConnector(connectorColor = Color(0xFFA6A6A6)) },
+            labelPositionProvider = CircularLabelPositionProvider(
+                labelSpacing = 1f,
+                labelPlacement = PieLabelPlacement.InternalOrExternal(),
+            ),
+            values = activeDataValue,
+            slice = { i: Int ->
+                DefaultSlice(
+                    hoverExpandFactor = 1.05f,
+                    hoverElement = { Text(activeDataValue[i].toString()) },
+                    antiAlias = true,
+                    color = activeData.getOrNull(i)?.chartColor ?: Color.LightGray,
+                    gap = 0f,
+                    onClick = {
+                        (if (selectedIndex == i) null else i).also {
+                            setSelectedIndex(i)
+                        }
+                    },
+                    clickable = true
+                )
+            },
+            forceCenteredPie = true,
+            holeSize = 0.8f,
+            label = { i ->
+                AnimatedVisibility(selectedIndex == i) {
+                    Text((activeData.getOrNull(i)?.data ?: "").toString())
+                }
+            },
+        )
     }
 }
 
