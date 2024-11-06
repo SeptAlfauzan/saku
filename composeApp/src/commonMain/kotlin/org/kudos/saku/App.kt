@@ -11,8 +11,6 @@ import androidx.compose.ui.graphics.Color
 import cafe.adriel.voyager.navigator.Navigator
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
-import org.koin.compose.koinInject
-import org.kudos.saku.app.presentation.viewmodels.CashFlowViewModel
 import org.kudos.saku.app.presentation.views.home.HomeScreen
 
 @Composable
@@ -21,12 +19,11 @@ fun App() {
 
     MaterialTheme {
         KoinContext {
-            val cashFlowViewModel = koinInject<CashFlowViewModel>()
             Column(
                 Modifier.fillMaxSize().background(Color(0xFFF9F9F9)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Navigator(HomeScreen(cashFlowViewModel))
+                Navigator(HomeScreen())
             }
         }
     }

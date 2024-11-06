@@ -30,6 +30,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import org.koin.compose.koinInject
 import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.presentation.viewmodels.CashFlowViewModel
 import org.kudos.saku.app.presentation.widgets.common.AddCashFlowRecordBottomSheet
@@ -39,11 +40,13 @@ import org.kudos.saku.app.presentation.widgets.home.HomeFloatingActionButton
 import org.kudos.saku.app.presentation.widgets.home.HomeTopBar
 import org.kudos.saku.utils.UIState
 
-class HomeScreen(private val cashFlowViewModel: CashFlowViewModel) : Screen {
+class HomeScreen() : Screen {
 
 
     @Composable
     override fun Content() {
+        val cashFlowViewModel = koinInject<CashFlowViewModel>()
+
         Home(
             onSwipeDeleteEntity = {
                 cashFlowViewModel.deleteCashFlow(it, onSuccess = {
@@ -63,7 +66,6 @@ class HomeScreen(private val cashFlowViewModel: CashFlowViewModel) : Screen {
                     it
                 )
             },
-
             cashFlowGroupSelectedEntitiesStateFlow = cashFlowViewModel.groupedSelectedCashFlowEntities,
             insertCashFlowToDB = { item, cb ->
                 cashFlowViewModel.insertCashFlow(
