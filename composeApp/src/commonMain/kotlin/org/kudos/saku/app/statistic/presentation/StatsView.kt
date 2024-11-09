@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -71,7 +73,8 @@ fun StatsView(
     incomeEntities: UIState<List<CashFlow>>,
     loadExpenses: (date: String) -> Unit,
     loadIncome: (date: String) -> Unit,
-    navigateBack: () -> Unit, modifier: Modifier = Modifier
+    navigateBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val today = CalendarDay(
         date = LocalDate.now(),
@@ -106,6 +109,17 @@ fun StatsView(
             false -> loadIncome(date)
         }
     }
+
+    LaunchedEffect(expensesEntities, incomeEntities, filterIsExpense) {
+        val currentState = if (filterIsExpense) expensesEntities else incomeEntities
+        if (currentState is UIState.Success) {
+            if (dataState.isEmpty() || dataState.map { it.data } != currentState.data
+            ) {
+                dataState = currentState.data.mapToChartItemMutableList()
+            }
+        }
+    }
+
     val cashFlow = if (filterIsExpense) expensesEntities else incomeEntities
 
     Box {
@@ -126,34 +140,21 @@ fun StatsView(
                 cashFlow.let {
                     when (it) {
                         is UIState.Error -> Text(it.error)
-                        UIState.Loading -> CircularProgressIndicator()
-                        is UIState.Success ->
-                            Column {
-                                dataState = it.data.mapToChartItemMutableList()
-                                RenderPieChart(
-                                    activeData = dataState.filter { it.isShowed },
-                                    selectedIndex = selectedIndex,
-                                    setSelectedIndex = { selectedIndex = it },
-                                    modifier = modifier
+                        UIState.Loading -> Box(Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(Modifier.align(Alignment.Center))
+                        }
+                        is UIState.Success -> Content(
+                            dataState = dataState,
+                            selectedIndex = selectedIndex,
+                            setSelectedIndex = { selectedIndex = it },
+                            onChecked = { newValue, index ->
+                                updateDataVisibility(
+                                    index = index,
+                                    newValue
                                 )
-                                LazyColumn(
-                                    modifier = Modifier.padding(top = 24.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    itemsIndexed(
-                                        dataState,
-                                        key = { index: Int, _: ChartItem<CashFlow> -> index }) { index, it ->
-                                        StatItem(
-                                            text = it.data.text,
-                                            money = it.data.amount,
-                                            isShowedInChart = it.isShowed,
-                                            onChecked = { newValue ->
-                                                updateDataVisibility(index = index, newValue)
-                                            },
-                                        )
-                                    }
-                                }
-                            }
+                            },
+                            modifier = modifier
+                        )
                     }
                 }
             }
@@ -174,12 +175,48 @@ fun StatsView(
 }
 
 @Composable
+fun Content(
+    dataState: List<ChartItem<CashFlow>>,
+    selectedIndex: Int?,
+    setSelectedIndex: (Int) -> Unit,
+    onChecked: (Boolean, Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Napier.d {
+        "rerender"
+    }
+    Column {
+        RenderPieChart(
+            activeData = dataState.filter { it.isShowed },
+            selectedIndex = selectedIndex,
+            setSelectedIndex = setSelectedIndex,
+            modifier = modifier
+        )
+        LazyColumn(
+            modifier = Modifier.padding(top = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            itemsIndexed(
+                dataState,
+                key = { index: Int, _: ChartItem<CashFlow> -> index }) { index, it ->
+                StatItem(
+                    text = it.data.text,
+                    money = it.data.amount,
+                    isShowedInChart = it.isShowed,
+                    onChecked = { onChecked(it, index) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun DatePicker(
     onCancel: () -> Unit,
     onOk: (date: String) -> Unit,
 ) {
     var date: String? by remember { mutableStateOf(null) }
-    Column(Modifier.padding(24.dp)) {
+    Column(Modifier.padding(24.dp).fillMaxWidth()) {
         Text("Select date")
         WheelDatePicker(modifier = Modifier.fillMaxWidth()) { snappedDate ->
             date = snappedDate.toString()

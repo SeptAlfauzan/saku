@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.kudos.saku.utils.toIdr
 
@@ -28,13 +29,16 @@ fun StatItem(
     isShowedInChart: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val textStyle = TextStyle(
+        color = Color(0xFF29515B)
+    )
+
     Card(
         modifier,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(width = 0.4.dp, color = Color(0xFFA6A6A6)),
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
-
             Text(
                 "Item",
                 style = TextStyle(Color(0xFFA6A6A6)),
@@ -47,7 +51,7 @@ fun StatItem(
             ) {
                 Column {
                     Text(text)
-                    Text(money.toIdr())
+                    Text(money.toIdr(), style = textStyle.copy(fontWeight = FontWeight.SemiBold))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Show in chart", style = TextStyle(Color(0xFFA6A6A6)))
