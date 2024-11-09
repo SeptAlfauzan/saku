@@ -59,4 +59,15 @@ interface CashFlowDao {
     """)
     fun getMonthlyCashInCashOutDifference(): Flow<List<MonthlyCashFlow>>
 
+    @Query("""
+        SELECT * FROM CashFlowEntity
+        WHERE created = :date AND isCashIn = true
+    """)
+    fun getCashInByDate(date: String): Flow<List<CashFlowEntity>>
+
+    @Query("""
+        SELECT * FROM CashFlowEntity
+        WHERE created = :date AND isCashIn = false
+    """)
+    fun getCashOutByDate(date: String): Flow<List<CashFlowEntity>>
 }

@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import cafe.adriel.voyager.navigator.Navigator
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
-import org.kudos.saku.app.presentation.views.home.HomeScreen
+import org.kudos.saku.app.home.presentation.HomeScreen
 
 @Composable
 @Preview()

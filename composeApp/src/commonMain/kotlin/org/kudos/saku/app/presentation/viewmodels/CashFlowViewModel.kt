@@ -31,6 +31,14 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
         MutableStateFlow(UIState.Loading)
     val dashboardCashFlowReport: StateFlow<UIState<Pair<Long, Long>>> = _dashboardCashFlowReport
 
+    private val _cashInFlowEntities: MutableStateFlow<UIState<List<CashFlow>>> =
+        MutableStateFlow(UIState.Loading)
+    val cashInFlowEntities: StateFlow<UIState<List<CashFlow>>> = _cashInFlowEntities
+    private val _cashOutFlowEntities: MutableStateFlow<UIState<List<CashFlow>>> =
+        MutableStateFlow(UIState.Loading)
+    val cashOutFlowEntities: StateFlow<UIState<List<CashFlow>>> = _cashOutFlowEntities
+
+
     fun getCashFlowEntities() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -78,6 +86,55 @@ class CashFlowViewModel(private val cashFlowRepository: CashFlowRepository) : Vi
             }
         }
     }
+
+    fun getCashInFlowEntitiesByDate(date: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _cashInFlowEntities.value = UIState.Loading
+                cashFlowRepository.getCashInByDate(date).catch {
+                    _cashInFlowEntities.value = UIState.Error(it.message ?: "Error")
+                }.collect {
+                    Napier.d { "data: $it" }
+                    _cashInFlowEntities.value = UIState.Success(it.map { cashFlowEntity ->
+                        CashFlow(
+                            id = cashFlowEntity.id,
+                            text = cashFlowEntity.text,
+                            amount = cashFlowEntity.amount,
+                            isCashIn = cashFlowEntity.isCashIn,
+                            created = cashFlowEntity.created
+                        )
+                    })
+                }
+            } catch (e: Exception) {
+                _cashInFlowEntities.value = UIState.Error(e.message ?: "Error")
+            }
+        }
+    }
+
+    fun getCashOutFlowEntitiesByDate(date: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _cashOutFlowEntities.value = UIState.Loading
+                cashFlowRepository.getCashOutByDate(date).catch {
+                    _cashOutFlowEntities.value = UIState.Error(it.message ?: "Error")
+                }.collect {
+                    Napier.d { "data: $it" }
+                    _cashOutFlowEntities.value = UIState.Success(it.map { cashFlowEntity ->
+                        CashFlow(
+                            id = cashFlowEntity.id,
+                            text = cashFlowEntity.text,
+                            amount = cashFlowEntity.amount,
+                            isCashIn = cashFlowEntity.isCashIn,
+                            created = cashFlowEntity.created
+                        )
+                    })
+                }
+            } catch (e: Exception) {
+                _cashOutFlowEntities.value = UIState.Error(e.message ?: "Error")
+            }
+        }
+    }
+
 
 
     fun getGroupedCashFlowEntitiesByDate(date: String) {

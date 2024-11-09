@@ -8,7 +8,6 @@ import org.kudos.saku.app.domain.repositories.CashFlowRepository
 import org.kudos.saku.app.presentation.viewmodels.CashFlowViewModel
 
 expect val platformModule: Module
-
 val sharedModule = module {
     single<CashFlowRepository> {
         CashFlowRepositoryImpl(get())

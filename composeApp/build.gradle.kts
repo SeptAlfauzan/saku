@@ -30,13 +30,11 @@ kotlin {
     }
     
     sourceSets {
-        
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.core.splashscreen)
             implementation(libs.ui.tooling.preview)
-
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
         }
@@ -84,7 +82,7 @@ android {
         applicationId = "org.kudos.saku"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 3
+        versionCode = 4
         versionName = "1.0"
     }
     packaging {

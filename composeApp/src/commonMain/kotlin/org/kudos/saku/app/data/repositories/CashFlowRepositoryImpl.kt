@@ -11,6 +11,8 @@ import org.kudos.saku.app.domain.repositories.CashFlowRepository
 class CashFlowRepositoryImpl (override val cashFlowDao: CashFlowDao) :
     CashFlowRepository {
     override suspend fun getCashFlow(): Flow<List<CashFlowEntity>> = cashFlowDao.getAllAsFlow()
+    override suspend fun getCashInByDate(date: String): Flow<List<CashFlowEntity>> = cashFlowDao.getCashInByDate(date)
+    override suspend fun getCashOutByDate(date: String): Flow<List<CashFlowEntity>> = cashFlowDao.getCashOutByDate(date)
 
     override suspend fun deleteCashFlow(item: CashFlowEntity) {
         cashFlowDao.delete(item)
@@ -32,4 +34,6 @@ class CashFlowRepositoryImpl (override val cashFlowDao: CashFlowDao) :
     override suspend fun getCurrentDateDifference(date: String): Flow<Long> = cashFlowDao.getSelectedDateCashInCashOutDifference(date)
     override suspend fun getCurrentMonthDifference(month: String, year: Int): Flow<Long> = cashFlowDao.getSelectedMonthCashInCashOutDifference(month, year)
     override suspend fun getMonthlyCashFlowReport(): Flow<List<MonthlyCashFlow>> = cashFlowDao.getMonthlyCashInCashOutDifference()
+
+
 }

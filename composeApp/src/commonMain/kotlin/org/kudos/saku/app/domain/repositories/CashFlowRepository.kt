@@ -15,4 +15,6 @@ interface CashFlowRepository {
     suspend fun getCurrentDateDifference(date: String): Flow<Long>
     suspend fun getCurrentMonthDifference(month: String, year: Int): Flow<Long>
     suspend fun getMonthlyCashFlowReport() : Flow<List<MonthlyCashFlow>>
+    suspend fun getCashInByDate(date:String): Flow<List<CashFlowEntity>>
+    suspend fun getCashOutByDate(date:String): Flow<List<CashFlowEntity>>
 }
