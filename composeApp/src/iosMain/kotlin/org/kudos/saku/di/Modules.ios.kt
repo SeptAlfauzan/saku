@@ -7,8 +7,6 @@ import org.kudos.saku.shared.DataStorePlatform
 import org.kudos.saku.shared.DatabaseClient
 
 actual val platformModule: Module = module {
-    single<CashFlowDao> { DatabaseClient(context = get()).getDatabaseInstance().cashFlowDao() }
-    single<DataStorePlatform> {
-        DataStorePlatform(get())
-    }
+    single<CashFlowDao> { DatabaseClient().getDatabaseInstance().cashFlowDao() }
+    single<DataStorePlatform> { DataStorePlatform() }
 }

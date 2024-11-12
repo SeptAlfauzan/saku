@@ -37,6 +37,8 @@ kotlin {
             implementation(libs.ui.tooling.preview)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            implementation(libs.androidx.datastore.preferences)
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -55,16 +57,22 @@ kotlin {
             implementation(libs.napier)
             implementation(libs.koalaplot.core)
             // Voyager Navigation
-            implementation("cafe.adriel.voyager:voyager-navigator:1.0.0")
+            implementation(libs.voyager.navigator)
             // Optional: For transitions
-            implementation("cafe.adriel.voyager:voyager-transitions:1.0.0")
+            implementation(libs.voyager.transitions)
             // Optional: For tab navigation
-            implementation("cafe.adriel.voyager:voyager-tab-navigator:1.0.0")
+            implementation(libs.voyager.tab.navigator)
             // Optional: For bottom sheet navigation
-            implementation("cafe.adriel.voyager:voyager-bottom-sheet-navigator:1.0.0")
+            implementation(libs.voyager.bottom.sheet.navigator)
             api(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+
+            implementation(compose.components.resources)
+//          datastore
+            implementation(libs.androidx.datastore)
+            implementation(libs.androidx.datastore.preferences)
+//            implementation(libs.androidx.material.icons.extended)
         }
         getByName("commonMain") {
             dependencies {

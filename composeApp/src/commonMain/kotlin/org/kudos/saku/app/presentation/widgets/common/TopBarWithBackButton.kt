@@ -1,4 +1,4 @@
-package org.kudos.saku.app.statistic.presentation.widgets
+package org.kudos.saku.app.presentation.widgets.common
 
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun TopBar(
+fun TopBarWithBackButton(
     navigateBack: () -> Unit,
 ) {
     TopAppBar(elevation = 0.dp,

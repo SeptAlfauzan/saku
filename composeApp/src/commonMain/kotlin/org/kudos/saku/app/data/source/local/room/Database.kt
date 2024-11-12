@@ -1,5 +1,6 @@
 package org.kudos.saku.app.data.source.local.room
 
+import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import org.kudos.saku.app.data.source.local.room.dao.CashFlowDao

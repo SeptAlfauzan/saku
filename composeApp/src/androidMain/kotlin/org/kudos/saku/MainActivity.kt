@@ -14,7 +14,6 @@ import org.kudos.saku.app.data.repositories.CashFlowRepositoryImpl
 import org.kudos.saku.app.data.source.local.room.getDao
 import org.kudos.saku.app.domain.repositories.CashFlowRepository
 import org.kudos.saku.app.presentation.viewmodels.CashFlowViewModel
-import org.kudos.saku.utils.ViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

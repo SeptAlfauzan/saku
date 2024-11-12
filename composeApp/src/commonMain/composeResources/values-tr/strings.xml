@@ -1,0 +1,10 @@
+<resources>
+    <string name="today">Today</string>
+    <string name="setting">Ayar</string>
+    <string name="theme">Tema</string>
+    <string name="export_to_csv">CSV'ye Aktar</string>
+    <string name="today_cash_different">Bugünkü toplam nakit akışı farkı</string>
+    <string name="month_cash_different">Toplam aylık nakit akışı farkı</string>
+    <string name="detail_report">detaylı rapor</string>
+    <string name="total_financial_flow">Bugünkü toplam finansal akış</string>
+</resources>

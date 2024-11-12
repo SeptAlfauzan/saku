@@ -34,9 +34,15 @@ import com.kizitonwose.calendar.core.now
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
+import org.jetbrains.compose.resources.stringResource
 import org.kudos.saku.app.presentation.widgets.common.PillButton
 import org.kudos.saku.utils.UIState
 import org.kudos.saku.utils.toIdr
+import saku.composeapp.generated.resources.Res
+import saku.composeapp.generated.resources.detail_report
+import saku.composeapp.generated.resources.month_cash_different
+import saku.composeapp.generated.resources.today
+import saku.composeapp.generated.resources.today_cash_different
 
 @Composable
 fun TodayCard(
@@ -62,7 +68,7 @@ fun TodayCard(
     Card(backgroundColor = Color(0xFFBFFF67), shape = RoundedCornerShape(12.dp)) {
         Column(modifier.padding(12.dp)) {
             Text(
-                "Today", style = textStyle.copy(fontSize = 24.sp)
+                stringResource(Res.string.today), style = textStyle.copy(fontSize = 24.sp)
             )
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 Text(
@@ -97,7 +103,7 @@ fun TodayCard(
                     ) {
                         Column(Modifier.fillMaxWidth()) {
                             Text(
-                                "Today total cash flow difference",
+                                stringResource(Res.string.today_cash_different),
                                 style = textStyle
                             )
                             Row {
@@ -119,7 +125,7 @@ fun TodayCard(
                                 )
                             }
                             Text(
-                                "Monthly total cash flow difference",
+                                stringResource(Res.string.month_cash_different),
                                 style = textStyle,
                                 modifier = Modifier.padding(top = 12.dp)
                             )
@@ -143,7 +149,7 @@ fun TodayCard(
                             }
                         }
                         PillButton(
-                            "detail report",
+                            stringResource(Res.string.detail_report),
                             onClick = navigateStatsView,
                             radiusCorner = 32.dp,
                             modifier = Modifier.align(Alignment.End)

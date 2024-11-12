@@ -1,0 +1,10 @@
+<resources>
+    <string name="today">Today</string>
+    <string name="setting">Setting</string>
+    <string name="theme">Theme</string>
+    <string name="export_to_csv">Export to CSV</string>
+    <string name="today_cash_different">Today total cash flow difference</string>
+    <string name="month_cash_different">Monthly total cash flow difference</string>
+    <string name="detail_report">detail report</string>
+    <string name="total_financial_flow">Total financial flow today</string>
+</resources>

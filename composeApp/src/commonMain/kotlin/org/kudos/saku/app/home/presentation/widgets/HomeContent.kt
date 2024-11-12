@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.kudos.saku.app.domain.entities.CashFlow
 import org.kudos.saku.app.presentation.widgets.common.CashFlowCard
-import org.kudos.saku.app.statistic.presentation.StatsScreen
+import org.kudos.saku.app.statistic.presentation.StatisticScreen
 import org.kudos.saku.utils.UIState
 import org.kudos.saku.utils.WindowSize
 import org.kudos.saku.utils.rememberWindowSize
@@ -57,7 +57,7 @@ fun HomeContent(
                     TodayCard(
                         todayAndMonthCashFlowReport,
                         loadTodayAndMonthCashFlowReport,
-                        navigateStatsView = { navigator.push(StatsScreen()) },
+                        navigateStatsView = { navigator.push(StatisticScreen()) },
                         modifier.fillMaxSize()
                     )
                 }
@@ -66,7 +66,7 @@ fun HomeContent(
                         TodayCard(
                             todayAndMonthCashFlowReport,
                             loadTodayAndMonthCashFlowReport,
-                            navigateStatsView = { navigator.push(StatsScreen()) },
+                            navigateStatsView = { navigator.push(StatisticScreen()) },
                         )
                     }
                     Box(modifier = Modifier.weight(1f)) {

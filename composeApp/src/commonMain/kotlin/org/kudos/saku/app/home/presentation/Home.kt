@@ -30,26 +30,31 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import org.koin.compose.koinInject
 import org.kudos.saku.app.domain.entities.CashFlow
-import org.kudos.saku.app.presentation.viewmodels.CashFlowViewModel
+import org.kudos.saku.app.home.presentation.widgets.AddCashFlowRecordBottomSheet
 import org.kudos.saku.app.home.presentation.widgets.CalendarContent
 import org.kudos.saku.app.home.presentation.widgets.HomeContent
-import org.kudos.saku.app.home.presentation.widgets.AddCashFlowRecordBottomSheet
-import org.kudos.saku.app.presentation.widgets.common.ButtonType
-import org.kudos.saku.app.presentation.widgets.common.PillButton
 import org.kudos.saku.app.home.presentation.widgets.HomeFloatingActionButton
 import org.kudos.saku.app.home.presentation.widgets.HomeTopBar
+import org.kudos.saku.app.presentation.viewmodels.CashFlowViewModel
+import org.kudos.saku.app.presentation.widgets.common.ButtonType
+import org.kudos.saku.app.presentation.widgets.common.PillButton
+import org.kudos.saku.app.setting.presentation.SettingViewModel
+import org.kudos.saku.utils.Language
 import org.kudos.saku.utils.UIState
 
-class HomeScreen() : Screen {
+class HomeScreen(
+    private val cashFlowViewModel: CashFlowViewModel,
+    private val berak: SettingViewModel
+) : Screen {
 
 
     @Composable
     override fun Content() {
-        val cashFlowViewModel = koinInject<CashFlowViewModel>()
 
         Home(
+            currentLanguage = berak.currentLanguage,
+            setCurrentLanguage = { berak.setCurrentLanguage(it) },
             onSwipeDeleteEntity = {
                 cashFlowViewModel.deleteCashFlow(it, onSuccess = {
                     Napier.i { "Success" }
@@ -90,6 +95,8 @@ class HomeScreen() : Screen {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Home(
+    currentLanguage: StateFlow<Language>,
+    setCurrentLanguage: (Language) -> Unit,
     currentDateAndMonthCashFlowReport: StateFlow<UIState<Pair<Long, Long>>>,
     loadCurrentDateAndMonthCashFlowReport: (date: String) -> Unit,
     onSwipeDeleteEntity: (CashFlow) -> Unit,
@@ -125,7 +132,10 @@ fun Home(
     Box(Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
-                HomeTopBar(onClick = {})
+                HomeTopBar(
+                    currentLanguage = currentLanguage,
+                    setCurrentLanguage = setCurrentLanguage
+                )
             },
             floatingActionButton = {
                 HomeFloatingActionButton(onClick = {

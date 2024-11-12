@@ -43,10 +43,10 @@ import org.kudos.saku.app.statistic.domain.entities.ChartItem
 import org.kudos.saku.app.statistic.presentation.widgets.RenderPieChart
 import org.kudos.saku.app.statistic.presentation.widgets.StatItem
 import org.kudos.saku.app.statistic.presentation.widgets.StatsHeader
-import org.kudos.saku.app.statistic.presentation.widgets.TopBar
+import org.kudos.saku.app.presentation.widgets.common.TopBarWithBackButton
 import org.kudos.saku.utils.UIState
 
-class StatsScreen : Screen {
+class StatisticScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -123,7 +123,7 @@ fun StatsView(
     val cashFlow = if (filterIsExpense) expensesEntities else incomeEntities
 
     Box {
-        Scaffold(topBar = { TopBar(navigateBack) }) {
+        Scaffold(topBar = { TopBarWithBackButton(navigateBack) }) {
             Column(
                 Modifier.padding(
                     horizontal = 24.dp,
